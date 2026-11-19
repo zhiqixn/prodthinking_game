@@ -31,6 +31,8 @@
   --bad: #b42318;
   --bad-soft: #fde6e3;
   --dest: #d1342c;
+  --rain-bg: #dcecfb;
+  --rain-ink: #10345e;
   --focus: #0b57b5;
   --shadow: 0 8px 28px rgba(10, 25, 45, 0.22);
   --display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
@@ -38,12 +40,14 @@
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
+    --rain-bg: #12304f; --rain-ink: #d6e8ff;
     --bg: #0d141d; --surface: #152030; --ink: #e6edf5; --muted: #9aa8ba; --line: #2a394d;
     --sign: #2f6fcc; --sign-ink: #ffffff; --ok: #52c48d; --ok-soft: #133022; --low: #f0a443; --low-soft: #3a2a10;
     --bad: #f2817a; --bad-soft: #3d1a18; --dest: #ff6b61; --focus: #8ab8f5; --shadow: 0 8px 28px rgba(0, 0, 0, 0.5); color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
+  --rain-bg: #12304f; --rain-ink: #d6e8ff;
   --bg: #0d141d; --surface: #152030; --ink: #e6edf5; --muted: #9aa8ba; --line: #2a394d;
   --sign: #2f6fcc; --sign-ink: #ffffff; --ok: #52c48d; --ok-soft: #133022; --low: #f0a443; --low-soft: #3a2a10;
   --bad: #f2817a; --bad-soft: #3d1a18; --dest: #ff6b61; --focus: #8ab8f5; --shadow: 0 8px 28px rgba(0, 0, 0, 0.5); color-scheme: dark;
@@ -210,6 +214,15 @@ details.box ul.sk li { font-size: 0.88rem; display: grid; gap: 2px; }
 .m-skip.low { background: #d08a1c; }
 .m-skip.bad { background: #c7362b; }
 .m-skip.unk { background: #8b95a5; }
+.wx { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 0.86rem; color: var(--muted); background: var(--bg); border-radius: 10px; padding: 7px 10px; }
+.wx.wet { background: var(--rain-bg); color: var(--rain-ink); }
+.wx > span:not(.drop) { flex: 1; min-width: 0; }
+.drop { flex: none; width: 12px; height: 12px; background: #1f6fd1; border-radius: 0 50% 50% 50%; transform: rotate(45deg); display: inline-block; }
+.linkbtn { background: none; border: 0; padding: 0; font: 700 0.85rem var(--body); color: var(--sign); cursor: pointer; text-decoration: underline; }
+.m-rain { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px; border-radius: 999px; background: #fff; color: #3d4b5e; border: 1px solid #b8c4d4; font: 700 0.78rem/1.2 var(--body); box-shadow: 0 1px 4px rgba(0,0,0,0.25); white-space: nowrap; }
+.m-rain .drop { width: 9px; height: 9px; background: #9aa8ba; }
+.m-rain.wet { background: #1f6fd1; color: #fff; border-color: #fff; }
+.m-rain.wet .drop { background: #fff; }
 .leaflet-popup-content-wrapper { border-radius: 12px; background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
 .leaflet-popup-tip { background: var(--surface); }
 .leaflet-popup-content { margin: 12px 14px; font-size: 0.9rem; line-height: 1.4; min-width: 200px; }
@@ -260,13 +273,14 @@ details.box ul.sk li { font-size: 0.88rem; display: grid; gap: 2px; }
         <li>Look at HDB carparks around your destination.</li>
         <li>Skip any that are <b>season parking only</b>, have <b>no live data</b>, data <b>older than 15 minutes</b>, or <b>fewer than 10 free car lots</b>. Lots fill up while you drive, so 10 is a safety buffer.</li>
         <li>From the rest, pick the <b>shortest walk</b> within 500 m. If none qualify, widen to 1 km, then 1.5 km, and say so.</li>
-        <li>The next two become your backups.</li>
+        <li><b>If it’s raining</b> near your destination (live rain gauges), covered carparks rank ahead of open-air ones within the same distance. Open-air ones are still used if nothing covered qualifies.</li>
+      <li>The next two become your backups.</li>
       </ol>
       <p class="note">Walking distance is estimated as 1.25 × the straight-line distance. Only HDB carparks have live data for now. Malls and URA carparks aren’t covered yet.</p>
     </details>
 
     <div class="foot">
-      <p>Contains information from the <a href="https://data.gov.sg/datasets/d_ca933a644e55d34fe21f28b8052fac63/view" target="_blank" rel="noopener">Carpark Availability</a> and <a href="https://data.gov.sg/datasets/d_23f946fa557947f93a8043bbef41dd09/view" target="_blank" rel="noopener">HDB Carpark Information</a> datasets, accessed on <span id="accessed"></span> from data.gov.sg and made available under the <a href="https://data.gov.sg/open-data-licence" target="_blank" rel="noopener">Singapore Open Data Licence version 1.0</a>.</p>
+      <p>Contains information from the <a href="https://data.gov.sg/datasets/d_ca933a644e55d34fe21f28b8052fac63/view" target="_blank" rel="noopener">Carpark Availability</a> and <a href="https://data.gov.sg/datasets/d_23f946fa557947f93a8043bbef41dd09/view" target="_blank" rel="noopener">HDB Carpark Information</a> and <a href="https://data.gov.sg/datasets/d_6580738cdd7db79374ed3152159fbd69/view" target="_blank" rel="noopener">Rainfall across Singapore</a> datasets, accessed on <span id="accessed"></span> from data.gov.sg and made available under the <a href="https://data.gov.sg/open-data-licence" target="_blank" rel="noopener">Singapore Open Data Licence version 1.0</a>.</p>
       <p>Map and address search by <a href="https://www.onemap.gov.sg/" target="_blank" rel="noopener">OneMap</a>, Singapore Land Authority. Stage 1 prototype: always follow road signs and carpark rules.</p>
     </div>
   </aside>
@@ -287,6 +301,10 @@ details.box ul.sk li { font-size: 0.88rem; display: grid; gap: 2px; }
   const SEARCH_URL = (q) => `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${encodeURIComponent(q)}&returnGeom=Y&getAddrDetails=Y&pageNum=1`;
   const TILE_URL = "https://www.onemap.gov.sg/maps/tiles/Default/{z}/{x}/{y}.png";
   const AVAIL_MAX_AGE_MS = 60 * 1000;
+  // Live rainfall: 5-minute totals from about 87 gauges. "Raining" = the nearest gauge (≤ 4 km)
+  // or any gauge within 2 km recorded rain in its latest reading (≤ 20 min old).
+  const RAIN_URL = "https://api-open.data.gov.sg/v2/real-time/api/rainfall";
+  const RAIN = { nearM: 2000, maxM: 4000, maxAgeMin: 20 };
 
   let SNAP = null;
   try { SNAP = JSON.parse(document.getElementById("snapshot").textContent || "null"); } catch (e) { SNAP = null; }
@@ -363,6 +381,8 @@ details.box ul.sk li { font-size: 0.88rem; display: grid; gap: 2px; }
   let carparks = [];
   const avail = new Map(); // id → { total, free, updated }
   let availFetchedAt = 0;
+  let rain = { stations: [], at: 0 }; // stations: { id, name, ll, x, y, mm }
+  let rainPreview = false;            // "Preview rainy-day picks" toggle
 
   // Info rows: [id, address, x, y, type, system, shortTerm, free, night, decks, gantry]
   function setInfo(rows) {
@@ -399,12 +419,46 @@ details.box ul.sk li { font-size: 0.88rem; display: grid; gap: 2px; }
     store.set("parkahead-info", { at: Date.now(), rows });
   }
   async function refreshAvail(force) {
-    if (DEMO) { if (!avail.size) setAvail(SNAP.avail); return; }
+    if (DEMO) { if (!avail.size) { setAvail(SNAP.avail); if (SNAP.rain) setRain(SNAP.rain); } return; }
     if (!force && Date.now() - availFetchedAt < AVAIL_MAX_AGE_MS) return;
-    const j = await getJSON(AVAIL_URL);
-    setAvail(j.items[0].carpark_data);
+    const [hdb] = await Promise.allSettled([getJSON(AVAIL_URL), refreshRain()]);
+    if (hdb.status === "rejected") throw hdb.reason;
+    setAvail(hdb.value.items[0].carpark_data);
     availFetchedAt = Date.now();
   }
+  // Rainfall is optional too: without it, picks ignore the weather
+  function setRain(d) {
+    const latest = (d.readings || [])[0];
+    if (!latest) return;
+    const mm = new Map(latest.data.map((r) => [r.stationId, Number(r.value)]));
+    rain = {
+      at: Date.parse(latest.timestamp),
+      stations: (d.stations || []).filter((st) => mm.has(st.id) && st.location).map((st) => {
+        const [x, y] = SVY.fromLatLon(st.location.latitude, st.location.longitude);
+        return { id: st.id, name: st.name, ll: [st.location.latitude, st.location.longitude], x, y, mm: mm.get(st.id) };
+      }),
+    };
+  }
+  async function refreshRain() {
+    try { const j = await getJSON(RAIN_URL); if (j && j.data) setRain(j.data); } catch (e) { /* keep the last reading */ }
+  }
+  function weatherAt(dest) {
+    if (!rain.stations.length) return null;
+    const ageMin = (now() - rain.at) / 60000;
+    if (!(ageMin <= RAIN.maxAgeMin)) return null;
+    const byDist = rain.stations.map((st) => ({ st, d: Math.hypot(st.x - dest.x, st.y - dest.y) })).sort((a, b) => a.d - b.d);
+    const nearest = byDist[0];
+    if (!nearest || nearest.d > RAIN.maxM) return null;
+    const wet = byDist.find((s) => s.st.mm > 0 && (s === nearest || s.d <= RAIN.nearM));
+    const ref = wet || nearest;
+    return { raining: !!wet, mm: ref.st.mm, station: ref.st, distM: ref.d, ageMin };
+  }
+  const shelter = (c) => {
+    if (c.agency || !c.type) return "unknown";
+    if (/^SURFACE CAR PARK$/i.test(c.type)) return "open";
+    if (/SURFACE/i.test(c.type)) return "partly";
+    return "covered";
+  };
 
   /* ---------- The Stage 1 rule ---------- */
   function judge(c, live) {
@@ -424,14 +478,18 @@ details.box ul.sk li { font-size: 0.88rem; display: grid; gap: 2px; }
       near.push({ c, live, walk, verdict: judge(c, live) });
     }
     near.sort((p, q) => p.walk - q.walk);
+    const wx = weatherAt(dest);
+    const wet = rainPreview || (wx && wx.raining);
+    // In rain, covered carparks rank ahead of open-air ones within the same search distance
+    const rank = (n) => (wet && shelter(n.c) === "open" ? 1 : 0);
     let radius = RULE.radii[0], picks = [];
     for (const r of RULE.radii) {
       radius = r;
-      picks = near.filter((n) => n.verdict.ok && n.walk <= r).slice(0, 3);
+      picks = near.filter((n) => n.verdict.ok && n.walk <= r).sort((p, q) => rank(p) - rank(q) || p.walk - q.walk).slice(0, 3);
       if (picks.length) break;
     }
     const skipped = near.filter((n) => !n.verdict.ok && n.walk <= radius).slice(0, 10);
-    return { picks, skipped, radius, nearCount: near.length };
+    return { picks, skipped, radius, nearCount: near.length, wx, wet };
   }
 
   /* ---------- Formatting ---------- */
@@ -440,9 +498,18 @@ details.box ul.sk li { font-size: 0.88rem; display: grid; gap: 2px; }
   const fmtAge = (ms) => { const m = Math.round((now() - ms) / 60000); return m <= 0 ? "Updated just now" : `Updated ${m} min ago`; };
   const ACRONYMS = /\b(Hdb|Mrt|Lrt|Amk|Ntuc|Cpf|Ite|Safra|Ica|Lta|Ura|Sgh|Nuh|Ttsh|Kkh|Ktph|Ncid|Pcn|Mscp)\b/g;
   const title = (s) => String(s || "").toLowerCase().replace(/\b([a-z])/g, (m) => m.toUpperCase()).replace(ACRONYMS, (m) => m.toUpperCase());
+  const shelterWord = (c) => ({ open: "open-air", partly: "partly covered", covered: "covered" }[shelter(c)] || "");
+  function wxLine(rec) {
+    const w = rec.wx;
+    if (rainPreview) return `<div class="wx wet"><span class="drop" aria-hidden="true"></span><span><b>Rainy-day preview on.</b> Covered carparks rank first.</span><button type="button" class="linkbtn" data-rain="off">Turn off</button></div>`;
+    if (!w) return `<div class="wx"><span>No recent rain gauge reading near here, so the weather isn’t used.</span></div>`;
+    if (w.raining) return `<div class="wx wet"><span class="drop" aria-hidden="true"></span><span><b>Raining near your destination</b>: ${w.mm} mm in the last 5 min at ${esc(w.station.name)}. Covered carparks rank first.</span></div>`;
+    return `<div class="wx"><span>Dry near your destination: no rain in the last 5 min at ${esc(w.station.name)}.</span><button type="button" class="linkbtn" data-rain="on">Preview rainy-day picks</button></div>`;
+  }
   const mapsUrl = (c) => `https://www.google.com/maps/dir/?api=1&destination=${c.ll[0].toFixed(6)},${c.ll[1].toFixed(6)}&travelmode=driving`;
   function tags(c) {
-    const t = [title(c.type)];
+    const sh = shelter(c);
+    const t = [title(c.type), sh === "open" ? "Open-air" : sh === "partly" ? "Partly covered" : "Covered"];
     if (c.shortTerm && !/^WHOLE DAY$/i.test(c.shortTerm)) t.push(`Short-term ${c.shortTerm.toLowerCase()}`);
     if (c.free && !/^NO$/i.test(c.free)) t.push(`Free: ${c.free.toLowerCase().replace("sun & ph", "Sun & PH").replace(" fr ", " ")}`);
     if (/^YES$/i.test(c.night || "")) t.push("Night parking");
@@ -469,7 +536,7 @@ details.box ul.sk li { font-size: 0.88rem; display: grid; gap: 2px; }
     if (kind === "skip") return `<div class="pop"><span class="k skip">Skipped</span><h3>${esc(title(n.c.address))}</h3><p>${fmtWalk(n.walk)} walk · <span class="why ${n.verdict.cls}">${esc(n.verdict.why)}</span></p></div>`;
     const label = kind === "pick" ? "Best pick" : `Backup ${kind}`;
     return `<div class="pop"><span class="k">${label}</span><h3>${esc(title(n.c.address))}</h3>
-      <p><b style="color:var(--ok)">${n.live.free} free</b> of ${n.live.total} · ${fmtWalk(n.walk)} walk (~${fmtMins(n.walk)} min)<br>${fmtAge(n.live.updated)}</p>
+      <p><b style="color:var(--ok)">${n.live.free} free</b> of ${n.live.total} · ${fmtWalk(n.walk)} walk (~${fmtMins(n.walk)} min)<br>${shelterWord(n.c) ? title(shelterWord(n.c)) + " · " : ""}${fmtAge(n.live.updated)}</p>
       <a class="nav" href="${mapsUrl(n.c)}" target="_blank" rel="noopener" data-go="${kind === "pick" ? 0 : kind}">Navigate in Google Maps</a></div>`;
   }
   let pickMarker = null;
@@ -485,6 +552,11 @@ details.box ul.sk li { font-size: 0.88rem; display: grid; gap: 2px; }
       const p = rec.picks[0];
       pickMarker = L.marker(p.c.ll, { icon: icon(`<div class="m-p"><b>P</b>${p.live.free} free</div>`, [86, 30], [15, 15]), title: p.c.address, zIndexOffset: 1000 })
         .bindPopup(popHTML("pick", p), { autoPan: true, closeButton: true }).addTo(resultLayer);
+    }
+    if (rec.wx) {
+      const st = rec.wx.station;
+      L.marker(st.ll, { icon: icon(`<div class="m-rain${rec.wx.raining ? " wet" : ""}"><span class="drop"></span>${rec.wx.mm} mm</div>`, [70, 22], [35, 11]), zIndexOffset: 400 })
+        .bindTooltip(`${esc(st.name)} rain gauge: ${rec.wx.mm} mm in the last 5 min`, { direction: "top" }).addTo(resultLayer);
     }
     L.marker(destLL, { icon: icon('<div class="m-dest"></div>', [26, 26], [3, 30]), title: dest.label, zIndexOffset: 900 })
       .bindTooltip(esc(dest.label), { direction: "top", offset: [10, -30] }).addTo(resultLayer);
@@ -541,7 +613,7 @@ details.box ul.sk li { font-size: 0.88rem; display: grid; gap: 2px; }
     const { dest } = current;
     const rec = (current.rec = recommend(dest));
     $("#intro").hidden = true;
-    let h = `<p class="dest-line">Parking near <b>${esc(dest.label)}</b></p>`;
+    let h = `<p class="dest-line">Parking near <b>${esc(dest.label)}</b></p>` + wxLine(rec);
     if (!rec.picks.length) {
       h += `<div class="empty"><h2>No carpark passes the rule nearby</h2><p>${rec.nearCount ? `There are ${rec.nearCount} HDB carpark${rec.nearCount === 1 ? "" : "s"} within ${fmtWalk(RULE.radii[RULE.radii.length - 1])}, but each is season-only, nearly full, or has stale or no live data.` : `There are no HDB carparks within ${fmtWalk(RULE.radii[RULE.radii.length - 1])}. If this is a mall or the CBD, those carparks aren’t covered yet.`}</p></div>`;
     } else {
@@ -558,13 +630,14 @@ details.box ul.sk li { font-size: 0.88rem; display: grid; gap: 2px; }
         </div>
         <div class="meter" aria-hidden="true"><i style="width:${pct}%"></i></div>
         <ul class="tags">${tags(p.c).map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
+        ${rec.wet && shelter(p.c) === "open" ? `<p class="widened">It’s raining, but no covered carpark passed the rule within ${fmtWalk(rec.radius)}, so this open-air one is the best option.</p>` : ""}
         <a class="nav" href="${mapsUrl(p.c)}" target="_blank" rel="noopener" data-go="0">Navigate in Google Maps</a>
         ${canNotify ? `<div class="row2"><button type="button" class="btn" id="watchBtn" aria-pressed="${watch.on}">${watch.on ? "Alerts on: we’ll tell you if this fills up" : "Alert me if this pick fills up"}</button></div>` : ""}
       </article>`;
       if (backs.length) {
         h += `<h3 class="sec-h">Backups</h3><div class="backups">${backs.map((b, i) => `
           <div class="backup" data-show="${i + 1}"><span class="rank">${i + 2}</span><span class="nm">${esc(title(b.c.address))}</span>
-            <span class="sub">${b.live.free} free · ${fmtWalk(b.walk)} walk · ${fmtAge(b.live.updated).replace("Updated ", "")}</span>
+            <span class="sub">${b.live.free} free · ${fmtWalk(b.walk)} walk${shelterWord(b.c) ? " · " + shelterWord(b.c) : ""} · ${fmtAge(b.live.updated).replace("Updated ", "")}</span>
             <a href="${mapsUrl(b.c)}" target="_blank" rel="noopener" data-go="${i + 1}">Go</a></div>`).join("")}</div>`;
       }
       h += `<p class="note">Counts change while you drive, so carparks with fewer than ${RULE.minLots} free lots are skipped.${DEMO ? "" : " This page refreshes them every 2 minutes."}</p>`;
@@ -579,6 +652,11 @@ details.box ul.sk li { font-size: 0.88rem; display: grid; gap: 2px; }
     results.querySelectorAll("[data-show]").forEach((row) => row.addEventListener("click", () => {
       const n = rec.picks[+row.dataset.show];
       resultLayer.eachLayer((l) => { if (l.getLatLng && n && l.getLatLng().equals(L.latLng(n.c.ll)) && l.openPopup) l.openPopup(); });
+    }));
+    results.querySelectorAll("[data-rain]").forEach((b) => b.addEventListener("click", () => {
+      rainPreview = b.dataset.rain === "on";
+      const r2 = renderResults();
+      drawMap(current.dest, r2);
     }));
     const wb = $("#watchBtn");
     if (wb) wb.addEventListener("click", async () => {
@@ -595,7 +673,11 @@ details.box ul.sk li { font-size: 0.88rem; display: grid; gap: 2px; }
     if (!p) { notify("warn", "No pick available", current.dest.label, "Every nearby carpark is nearly full, season-only or without fresh data."); return; }
     const line = `${p.live.free} free of ${p.live.total} · ${fmtWalk(p.walk)} walk`;
     // The first pick pops up on the map itself (drawMap); the banner is for news
-    if (prev && prev.id !== p.c.id) notify("warn", "Your pick changed", title(p.c.address), `${prev.address} dropped below ${RULE.minLots} free lots or went stale. ${line}.`);
+    if (prev && prev.id !== p.c.id) {
+      const old = rec.picks.find((n) => n.c.id === prev.id) || null;
+      const why = old && rec.wet && shelter(old.c) === "open" ? `It started raining, so a covered carpark now ranks ahead of ${prev.address}.` : `${prev.address} dropped below ${RULE.minLots} free lots or went stale.`;
+      notify("warn", "Your pick changed", title(p.c.address), `${why} ${line}.`);
+    }
   }
 
   /* ---------- Trip log (outcome metrics: hit rate, follow rate, time to park) ---------- */

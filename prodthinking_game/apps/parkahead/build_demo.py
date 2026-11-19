@@ -20,6 +20,7 @@ ROOT = HERE.parent.parent
 LIVE_URL = "https://zhiqixn.github.io/prodthinking_game/apps/parkahead/"
 INFO_URL = "https://data.gov.sg/api/action/datastore_search?resource_id=d_23f946fa557947f93a8043bbef41dd09&limit=5000"
 AVAIL_URL = "https://api.data.gov.sg/v1/transport/carpark-availability"
+RAIN_URL = "https://api-open.data.gov.sg/v2/real-time/api/rainfall"
 SEARCH_URL = "https://www.onemap.gov.sg/api/common/elastic/search?returnGeom=Y&getAddrDetails=Y&pageNum=1&searchVal="
 PRESETS = [
     ("Toa Payoh HDB Hub", "HDB HUB"),
@@ -50,6 +51,7 @@ def main():
     rows = [[r["car_park_no"], r["address"], r["x_coord"], r["y_coord"], r["car_park_type"], r["type_of_parking_system"],
              r["short_term_parking"], r["free_parking"], r["night_parking"], r["car_park_decks"], r["gantry_height"]] for r in info]
     av = get(AVAIL_URL)["items"][0]
+    rain = get(RAIN_URL).get("data")
     taken_at = int(time.time() * 1000)
     presets = []
     for label, q in PRESETS:
@@ -59,7 +61,7 @@ def main():
             continue
         presets.append({"label": label, "x": float(res[0]["X"]), "y": float(res[0]["Y"])})
         time.sleep(2)
-    snap = {"takenAt": taken_at, "liveUrl": LIVE_URL, "info": rows, "avail": av["carpark_data"], "presets": presets}
+    snap = {"takenAt": taken_at, "liveUrl": LIVE_URL, "info": rows, "avail": av["carpark_data"], "rain": rain, "presets": presets}
     data = json.dumps(snap, separators=(",", ":")).replace("</", "<\\/")
 
     html = (HERE / "index.html").read_text()
