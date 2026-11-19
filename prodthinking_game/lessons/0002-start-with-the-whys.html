@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Start With The Whys</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap">
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main class="page">
+
+<header>
+  <p class="eyebrow">Product Thinking · Lesson 02 of the IDG pathway</p>
+  <h1>Start with the whys</h1>
+  <p class="dek">A problem statement tells you what hurts. The Five Whys tell you why it hurts, and where you can actually fix it.</p>
+  <p class="meta">About 12 minutes · warm-up · 3 exercises · 3 recall questions</p>
+</header>
+
+<section>
+  <h2>Warm-up from Lesson 01</h2>
+  <p>Two quick questions from last time, from memory. A short gap before recalling is what makes it stick.</p>
+  <div class="panel" data-quiz>
+    <div class="panel-head">
+      <p class="eyebrow">Warm-up</p>
+      <span class="score" data-score aria-live="polite"></span>
+    </div>
+    <fieldset class="q" data-answer="0">
+      <legend>“Residents waiting for a permit call the hotline three times on average to check its status.”</legend>
+      <div class="opts"><button class="opt">Names a problem</button><button class="opt">Names a solution</button></div>
+      <p class="explain" hidden><span class="verdict"></span>Who (residents waiting for a permit), what goes wrong (they chase status by phone), and a figure. No fix is named.</p>
+    </fieldset>
+    <fieldset class="q" data-answer="3">
+      <legend>Which question does a problem statement <em>not</em> need to answer?</legend>
+      <div class="opts stack">
+        <button class="opt">Who is affected by it</button>
+        <button class="opt">What goes wrong for them</button>
+        <button class="opt">How you know it’s real</button>
+        <button class="opt">What you plan to build</button>
+      </div>
+      <p class="explain" hidden><span class="verdict"></span>What to build comes later. Naming it early turns the statement into a solution in disguise.</p>
+    </fieldset>
+  </div>
+</section>
+
+<section>
+  <h2>Symptom first, cause second</h2>
+  <p>In Lesson 01 you learned to write down <em>what</em> goes wrong. That is usually a <strong>symptom</strong>: the part people can see. IDG’s second module adds one step before you look for solutions: understand <em>why</em> the problem exists. Its tool is the Five Whys, which moves you from symptom to cause.</p>
+  <aside class="note"><b>Source:</b> <a href="https://www.idg.gov.sg/guides-resources/ai-301-build-with-ai/productthinking2/">IDG, Start With The Whys</a>.</aside>
+  <p>The method is simple. State the problem, ask “why?”, then ask “why?” about the answer, and keep going.</p>
+  <p>The technique comes from Toyota’s production system. Here is Taiichi Ohno’s classic example, about a machine that stopped:</p>
+  <aside class="note"><b>Source:</b> <a href="https://www.lean.org/lexicon-terms/5-whys/">Lean Enterprise Institute, 5 Whys</a>, citing Ohno (1988).</aside>
+  <ol class="chain">
+    <li><span class="k">Symptom</span>The machine stopped.</li>
+    <li><span class="k">Why 1</span>An overload blew the fuse.</li>
+    <li><span class="k">Why 2</span>The bearing wasn’t lubricated enough.</li>
+    <li><span class="k">Why 3</span>The lubrication pump wasn’t pumping enough.</li>
+    <li><span class="k">Why 4</span>The pump shaft was worn and rattling.</li>
+    <li class="root"><span class="k">Why 5 · root cause</span>There was no strainer, so metal scraps got in.</li>
+  </ol>
+  <p>Replace the fuse and the machine runs today. It will stop again, because the scraps are still getting in. Fit a strainer and the failure stops coming back.</p>
+</section>
+
+<section>
+  <h2>Practice 1: Build the chain</h2>
+  <p>Put the causes in order, starting with the one nearest the symptom. Click a cause to place it, and click a placed step to take it back out. The example is invented.</p>
+  <div class="panel order" data-order>
+    <p class="order-symptom"><span class="tag tag-problem">Symptom</span>Small businesses wait about eight weeks for a grant decision.</p>
+    <ol class="order-slots"></ol>
+    <div class="order-pool">
+      <button class="chip" data-pos="3">The document checklist only appears after the form is submitted.</button>
+      <button class="chip" data-pos="1">Most applications are sent back at least once for missing information.</button>
+      <button class="chip" data-pos="4">The online form was copied from the old paper form and never redesigned.</button>
+      <button class="chip" data-pos="2">Applicants don’t know which documents they need.</button>
+    </div>
+    <div class="row">
+      <button class="btn" data-check type="button">Check order</button>
+      <button class="btn btn-quiet" data-reset type="button">Start over</button>
+    </div>
+    <p class="order-out" hidden aria-live="polite"></p>
+  </div>
+  <p class="small">This chain stops at four whys. Five is a rule of thumb: keep asking until you reach a cause you can remove.</p>
+</section>
+
+<section>
+  <h2>Choosing the right level to fix</h2>
+  <p>Two cautions from IDG. First, problems rarely have a single root cause: one symptom can branch into several chains. Second, the deepest cause isn’t always the one to fix. Pick a cause that passes two tests:</p>
+  <ol>
+    <li>It is <strong>within your control</strong>.</li>
+    <li>It is <strong>closely connected to the outcome</strong> you want to change.</li>
+  </ol>
+  <aside class="note"><b>Source:</b> <a href="https://www.idg.gov.sg/guides-resources/ai-301-build-with-ai/productthinking2/">IDG, Start With The Whys</a>, section “Choosing the right level to fix.”</aside>
+  <p>Ask “why?” far enough and you reach causes like “the economy” or “people are busy”. They are true, but you can’t act on them. Stop asking too early and you end up replacing the fuse.</p>
+</section>
+
+<section>
+  <h2>Practice 2: Pick the level</h2>
+  <p>You are on the agency’s digital team. For each chain, pick the cause to work on, using the two tests.</p>
+  <div class="panel" data-quiz>
+    <div class="panel-head">
+      <p class="eyebrow">Level to fix</p>
+      <span class="score" data-score aria-live="polite"></span>
+    </div>
+    <fieldset class="q" data-answer="1">
+      <legend>Symptom: elderly residents miss clinic appointments. You found these causes. Which do you work on?</legend>
+      <div class="opts stack">
+        <button class="opt">Residents ignore their reminder letters</button>
+        <button class="opt">Letters are posted too late</button>
+        <button class="opt">Postal deliveries are sometimes slow</button>
+        <button class="opt">Singapore’s population is ageing fast</button>
+      </div>
+      <p class="explain" hidden><span class="verdict"></span>When letters are posted is in your agency’s hands and directly affects missed appointments. Postal speed and population ageing are outside your control. “Residents ignore letters” blames people, and asking why again leads back to the late letters.</p>
+    </fieldset>
+    <fieldset class="q" data-answer="2">
+      <legend>Symptom: grant decisions take eight weeks (the chain from Practice 1). Which cause do you work on?</legend>
+      <div class="opts stack">
+        <button class="opt">Businesses lack the right paperwork</button>
+        <button class="opt">The economy keeps changing quickly</button>
+        <button class="opt">Checklist appears only after submitting</button>
+        <button class="opt">Procurement law sets form rules</button>
+      </div>
+      <p class="explain" hidden><span class="verdict"></span>Moving the checklist before submission is within the team’s control, and it leads straight to fewer send-backs and faster decisions. The others are symptoms, or outside your reach.</p>
+    </fieldset>
+  </div>
+</section>
+
+<section>
+  <h2>Practice 3: Your own chain</h2>
+  <p>IDG’s exercise is to take a real problem and ask why five times. Use one from your work, or try “Officers spend two hours a day re-typing PDF forms.” Keep asking until you reach something you can fix.</p>
+  <div class="panel whys" data-whys data-max="7" data-reveal-after="3" data-id="my-why">
+    <label for="my-why-0">Symptom</label>
+    <input type="text" id="my-why-0" placeholder="What goes wrong, for whom?">
+    <div class="whys-list"></div>
+    <div class="row"><button class="btn" data-add type="button">Ask why</button></div>
+    <div class="whys-check" hidden>
+      <p class="eyebrow">Check your chain</p>
+      <label class="tick" for="tick-1"><input type="checkbox" id="tick-1">Each line answers “why?” for the line above it</label>
+      <label class="tick" for="tick-2"><input type="checkbox" id="tick-2">The cause I’d fix is within my team’s control</label>
+      <label class="tick" for="tick-3"><input type="checkbox" id="tick-3">Fixing it would clearly change the original symptom</label>
+      <label class="tick" for="tick-4"><input type="checkbox" id="tick-4">I know which step I’d need evidence for</label>
+      <p class="small">If a box stays empty, either ask why again or step back up a level. Paste your chain into Claude Code if you’d like feedback.</p>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Recall</h2>
+  <p>From memory, without scrolling up. One question goes back to Lesson 01.</p>
+  <div class="panel" data-quiz>
+    <div class="panel-head">
+      <p class="eyebrow">Recall</p>
+      <span class="score" data-score aria-live="polite"></span>
+    </div>
+    <fieldset class="q" data-answer="1">
+      <legend>What does IDG say the Five Whys is for?</legend>
+      <div class="opts stack">
+        <button class="opt">Ranking features by user value</button>
+        <button class="opt">Moving from symptom to cause</button>
+        <button class="opt">Estimating delivery time per feature</button>
+        <button class="opt">Choosing between technology vendors quickly</button>
+      </div>
+      <p class="explain" hidden><span class="verdict"></span>Symptom to cause, so you understand why a problem exists before you pick a solution.</p>
+    </fieldset>
+    <fieldset class="q" data-answer="3">
+      <legend>Which two tests does IDG give for choosing the level to fix?</legend>
+      <div class="opts stack">
+        <button class="opt">Cheap to fix, fast to ship</button>
+        <button class="opt">Deepest in chain, oldest in time</button>
+        <button class="opt">Most visible to the senior managers</button>
+        <button class="opt">Within your control, linked to outcome</button>
+      </div>
+      <p class="explain" hidden><span class="verdict"></span>Within your control, and closely connected to the outcome you want to change. The deepest cause isn’t automatically the right one.</p>
+    </fieldset>
+    <fieldset class="q" data-answer="2">
+      <legend>In Ohno’s example, you stop at “the fuse blew” and replace the fuse. What happens?</legend>
+      <div class="opts stack">
+        <button class="opt">The pump starts working again</button>
+        <button class="opt">The problem is fully solved</button>
+        <button class="opt">The machine fails again later</button>
+        <button class="opt">The bearing gets more oil</button>
+      </div>
+      <p class="explain" hidden><span class="verdict"></span>The scraps keep getting in, so the failure comes back. Fixing the symptom isn’t fixing the problem, which is Lesson 01’s point again.</p>
+    </fieldset>
+  </div>
+</section>
+
+<section>
+  <h2>For your game</h2>
+  <div class="game">
+    <h3>A digging mechanic</h3>
+    <p>A why-chain plays naturally as a descent. The player starts with a symptom card and digs one “why?” at a time, and some cards are red herrings. The real decision is where to stop: too shallow and the problem comes back next round, too deep and it’s out of the player’s control. Score the stop with IDG’s two tests.</p>
+    <p>Questions to think about: how does the player find out a cause was a red herring? Does stopping too shallow cost something visible, like the same symptom returning?</p>
+    <p>Bring one idea next time, along with your idea from Lesson 01.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Read next</h2>
+  <ul class="next">
+    <li><span class="kind">Primary source · read or watch</span><a href="https://www.idg.gov.sg/guides-resources/ai-301-build-with-ai/productthinking2/">IDG: Start With The Whys</a> (includes a short video)</li>
+    <li><span class="kind">Deeper background</span><a href="https://www.lean.org/lexicon-terms/5-whys/">Lean Enterprise Institute: 5 Whys</a>, where the method comes from</li>
+    <li><span class="kind">Reference</span><a href="../reference/five-whys.html">Five Whys card</a> and <a href="../reference/idg-pathway-map.html">pathway map</a></li>
+    <li><span class="kind">Previous lesson</span><a href="0001-problems-before-solutions.html">Lesson 01: Problems before solutions</a></li>
+    <li><span class="kind">Next lesson</span><a href="https://www.idg.gov.sg/guides-resources/ai-301-build-with-ai/productthinking3/">Craft a Clear Problem Statement</a>: the 4Cs, which combine Lessons 01 and 02</li>
+  </ul>
+  <p class="ask"><strong>Stuck on something?</strong> Ask me in Claude Code. For example: “How do I handle a chain that branches into two causes?” I’m your teacher for this course, and follow-up questions are part of the lesson.</p>
+</section>
+
+<footer>
+  <p class="small">Lesson 02 · Based on the Institute of Digital Government’s Product Thinking pathway, with background from the Lean Enterprise Institute. Practice examples are invented.</p>
+</footer>
+
+</main>
+<script src="../assets/course.js"></script>
+</body>
+</html>

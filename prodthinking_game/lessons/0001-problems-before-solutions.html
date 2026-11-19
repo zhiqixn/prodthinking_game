@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Problems Before Solutions</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,650;12..96,700&family=IBM+Plex+Mono:wght@400;500&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap">
+<link rel="stylesheet" href="../assets/course.css">
+</head>
+<body>
+<main class="page">
+
+<header>
+  <p class="eyebrow">Product Thinking · Lesson 01 of the IDG pathway</p>
+  <h1>Problems before solutions</h1>
+  <p class="dek">Many project briefs arrive as a solution: “we need a chatbot.” Your first product-thinking skill is to spot that, and turn it back into a problem.</p>
+  <p class="meta">About 10 minutes · 2 exercises · 3 recall questions</p>
+</header>
+
+<section>
+  <h2>Why this comes first</h2>
+  <p>The Institute of Digital Government (IDG) opens its Product Thinking pathway with one claim. A project can be executed well and still struggle, because it solved the wrong problem. The fix is to diagnose the real problem first, and only then decide what to build.</p>
+  <aside class="note"><b>Source:</b> <a href="https://www.idg.gov.sg/guides-resources/ai-301-build-with-ai/productthinking1/">IDG Module 1, Understanding the Problem</a>.</aside>
+  <p>The module names three principles that the rest of the pathway builds on. This lesson covers the first.</p>
+  <ul class="principles">
+    <li><span class="here">Focus on the problem</span><span class="where">this lesson</span></li>
+    <li><span>Chase outcomes</span><span class="where">Metrics module</span></li>
+    <li><span>Integrate policy, operations and technology</span><span class="where">later</span></li>
+  </ul>
+  <aside class="note">IDG shows the three principles as a graphic in Module 1. Their full treatment comes in later modules.</aside>
+  <p>IDG also points out that many successful products, such as Grab, Amazon and Netflix, started by solving one specific problem for a defined group of users, and grew from there.</p>
+</section>
+
+<section>
+  <h2>Spot the solution in disguise</h2>
+  <p>A <strong>solution in disguise</strong> names the thing to build (a chatbot, a dashboard, an app) without saying what is going wrong, or for whom. It skips the diagnosis. If it ships, nobody can say whether it worked, because nothing defined what “worked” would mean.</p>
+  <p>A <strong>problem statement</strong> leaves the fix open and answers three questions:</p>
+  <ol>
+    <li><strong>Who</strong> is affected?</li>
+    <li><strong>What</strong> goes wrong for them?</li>
+    <li><strong>How do you know?</strong> What evidence, and how big is it?</li>
+  </ol>
+  <aside class="note">This three-question check is a simplified starting point for this lesson. IDG’s full version is the <b>4Cs Framework</b>: Clarity, Consequence, Cause, Confirmation. See <a href="https://www.idg.gov.sg/guides-resources/ai-301-build-with-ai/productthinking3/">Craft a Clear Problem Statement</a>.</aside>
+  <div class="pair">
+    <div>
+      <span class="tag tag-solution">Solution in disguise</span>
+      <p>We need a chatbot for the appointment booking page.</p>
+    </div>
+    <div>
+      <span class="tag tag-problem">Problem</span>
+      <p>Residents booking online can’t find a free slot, so many call the hotline instead. About a third of hotline calls are about slots.</p>
+    </div>
+  </div>
+  <p class="small">The figure in the problem example is invented to show the shape. In real work, it is the thing you go and check.</p>
+</section>
+
+<section>
+  <h2>Practice 1: Problem or solution?</h2>
+  <p>Sort each statement. You get feedback straight away. All examples are invented for practice.</p>
+  <div class="panel" data-quiz>
+    <div class="panel-head">
+      <p class="eyebrow">Sorter</p>
+      <span class="score" data-score aria-live="polite"></span>
+    </div>
+
+    <fieldset class="q" data-answer="1">
+      <legend>“We need a chatbot on the appointment booking page.”</legend>
+      <div class="opts"><button class="opt">Names a problem</button><button class="opt">Names a solution</button></div>
+      <p class="explain" hidden><span class="verdict"></span>It names something to build. It says nothing about who is struggling, or with what.</p>
+    </fieldset>
+
+    <fieldset class="q" data-answer="0">
+      <legend>“First-time applicants often submit forms without the required documents, so their cases bounce back and take twice as long.”</legend>
+      <div class="opts"><button class="opt">Names a problem</button><button class="opt">Names a solution</button></div>
+      <p class="explain" hidden><span class="verdict"></span>Who: first-time applicants. What goes wrong: missing documents, so cases bounce. It also names a consequence you can measure.</p>
+    </fieldset>
+
+    <fieldset class="q" data-answer="0">
+      <legend>“Officers spend about two hours a day re-typing data from PDF forms into the case system.”</legend>
+      <div class="opts"><button class="opt">Names a problem</button><button class="opt">Names a solution</button></div>
+      <p class="explain" hidden><span class="verdict"></span>Who and what, with a figure you could verify. It doesn’t say what to build, so the options stay open.</p>
+    </fieldset>
+
+    <fieldset class="q" data-answer="1">
+      <legend>“Build a dashboard so managers can see the case backlog.”</legend>
+      <div class="opts"><button class="opt">Names a problem</button><button class="opt">Names a solution</button></div>
+      <p class="explain" hidden><span class="verdict"></span>A dashboard is a thing to build. The backlog might be the real problem, but this sentence skips straight past it.</p>
+    </fieldset>
+
+    <fieldset class="q" data-answer="0">
+      <legend>“Elderly residents miss clinic appointments because reminder letters arrive after the appointment date.”</legend>
+      <div class="opts"><button class="opt">Names a problem</button><button class="opt">Names a solution</button></div>
+      <p class="explain" hidden><span class="verdict"></span>Who, what, and even a likely cause. Checking whether that cause is the real one is the subject of the next lesson.</p>
+    </fieldset>
+
+    <fieldset class="q" data-answer="1">
+      <legend>“Let’s add AI to the grants portal.”</legend>
+      <div class="opts"><button class="opt">Names a problem</button><button class="opt">Names a solution</button></div>
+      <p class="explain" hidden><span class="verdict"></span>Technology first. Nothing here says what is wrong with the portal today.</p>
+    </fieldset>
+
+    <fieldset class="q" data-answer="1">
+      <legend>“We should launch a mobile app for the scheme.”</legend>
+      <div class="opts"><button class="opt">Names a problem</button><button class="opt">Names a solution</button></div>
+      <p class="explain" hidden><span class="verdict"></span>An app is a channel. Who can’t use the scheme today, and why?</p>
+    </fieldset>
+
+    <div class="row" style="margin-top:0.75rem"><button class="btn btn-quiet" data-reset>Try again</button></div>
+  </div>
+</section>
+
+<section>
+  <h2>Practice 2: Turn it back into a problem</h2>
+  <p>Your director forwards a one-line request. Rewrite it as a problem statement. You may invent plausible facts, but mark them as assumptions to check.</p>
+  <div class="panel rewrite" data-rewrite data-flags="chatbot,chatbots,bot,app,apps,ai,dashboard,portal,platform,system,tool,build,launch,implement,automate,automated,summarise,summarize,summariser,llm,gpt">
+    <label for="rw-feedback">“Let’s use AI to summarise citizen feedback.”</label>
+    <textarea id="rw-feedback" placeholder="Who is affected, what goes wrong for them, and how do you know?"></textarea>
+    <div class="row">
+      <button class="btn" data-check type="button">Check my rewrite</button>
+      <span class="small">The automatic check only catches named solutions. Judge the rest with the checklist.</span>
+    </div>
+    <div class="rw-out" hidden aria-live="polite"></div>
+    <details class="model">
+      <summary>Model answer and checklist</summary>
+      <blockquote>Officers handling public feedback can’t keep up: around 2,000 emails arrive each month, and replies now take three weeks against a one-week target. <em>(Figures are assumptions to verify.)</em></blockquote>
+      <ul class="checklist">
+        <li>Says <strong>who</strong> is affected</li>
+        <li>Says <strong>what goes wrong</strong> for them</li>
+        <li>Says <strong>how you know</strong>, with evidence or a size</li>
+        <li>Names <strong>no solution</strong>, so AI stays one option among several</li>
+      </ul>
+    </details>
+  </div>
+</section>
+
+<section>
+  <h2>Recall</h2>
+  <p>Answer from memory, without scrolling up. Recalling it now helps you remember it next week.</p>
+  <div class="panel" data-quiz>
+    <div class="panel-head">
+      <p class="eyebrow">Recall</p>
+      <span class="score" data-score aria-live="polite"></span>
+    </div>
+
+    <fieldset class="q" data-answer="2">
+      <legend>In IDG’s Module 1, why can a well-executed project still struggle?</legend>
+      <div class="opts stack">
+        <button class="opt">It picks the wrong vendor</button>
+        <button class="opt">It ships far too slowly</button>
+        <button class="opt">It solves the wrong problem</button>
+        <button class="opt">It lacks engineering staff</button>
+      </div>
+      <p class="explain" hidden><span class="verdict"></span>Good execution can’t rescue the wrong problem. That is why diagnosis comes first.</p>
+    </fieldset>
+
+    <fieldset class="q" data-answer="0">
+      <legend>Which of these is one of Module 1’s three principles?</legend>
+      <div class="opts stack">
+        <button class="opt">Chase real outcomes</button>
+        <button class="opt">Ship more features</button>
+        <button class="opt">Automate every step</button>
+        <button class="opt">Start with technology</button>
+      </div>
+      <p class="explain" hidden><span class="verdict"></span>The three are: focus on the problem, chase outcomes, and integrate policy, operations and technology.</p>
+    </fieldset>
+
+    <fieldset class="q" data-answer="3">
+      <legend>What does a problem statement say that a solution in disguise usually leaves out?</legend>
+      <div class="opts stack">
+        <button class="opt">Which technology vendor to use</button>
+        <button class="opt">When the launch will happen</button>
+        <button class="opt">What features to build first</button>
+        <button class="opt">Who is affected, and how</button>
+      </div>
+      <p class="explain" hidden><span class="verdict"></span>Who, what goes wrong, and how you know. The other three are all decisions about a solution.</p>
+    </fieldset>
+  </div>
+</section>
+
+<section>
+  <h2>For your game</h2>
+  <div class="game">
+    <h3>Is this a mechanic?</h3>
+    <p>The sorter above could already be a round in the Product Thinking Game: a statement appears, and the player calls it problem or pitch. As a quiz, it gets dull fast. What could turn it into a game? Some starting ideas:</p>
+    <ul>
+      <li>A stakeholder character who keeps pushing a favourite solution</li>
+      <li>Bonus points for rewriting a pitch into a problem, not just spotting it</li>
+      <li>A timer, or a queue of requests that fills up</li>
+    </ul>
+    <p>Write down one idea. We’ll design with it after the next lesson.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Read next</h2>
+  <ul class="next">
+    <li><span class="kind">Primary source · read or watch</span><a href="https://www.idg.gov.sg/guides-resources/ai-301-build-with-ai/productthinking1/">IDG Module 1: Understanding the Problem</a> (includes a short video)</li>
+    <li><span class="kind">Reference</span><a href="../reference/idg-pathway-map.html">Pathway map</a>: the seven modules, three principles and toolkit on one page</li>
+    <li><span class="kind">Next lesson</span><a href="0002-start-with-the-whys.html">Lesson 02: Start with the whys</a>: getting from a symptom to its root cause</li>
+    <li><span class="kind">Course overview</span><a href="https://www.idg.gov.sg/product-thinking/">IDG Product Thinking pathway</a></li>
+  </ul>
+  <p class="ask"><strong>Stuck on something?</strong> Ask me in Claude Code. For example: “Why is a dashboard a solution if managers really can’t see the backlog?” I’m your teacher for this course, and follow-up questions are part of the lesson.</p>
+</section>
+
+<footer>
+  <p class="small">Lesson 01 · Based on the Institute of Digital Government’s Product Thinking pathway. Practice examples are invented.</p>
+</footer>
+
+</main>
+<script src="../assets/course.js"></script>
+</body>
+</html>

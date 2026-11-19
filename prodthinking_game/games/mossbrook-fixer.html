@@ -1,0 +1,1344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Mossbrook Fixer</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;600;700&family=Nunito:wght@500;700;800&display=swap">
+<style>
+/* Layout: pixel village canvas with a dialogue strip under it; the Fixer's journal sits to the right (stacks below on phones).
+   Deliberately single-theme: a dusky forest frame around a sunny village, like a game cabinet. */
+:root {
+  --frame: #1d3a35;
+  --frame-2: #285048;
+  --edge: #10241f;
+  --panel: #f2f8ea;
+  --panel-2: #e1edd2;
+  --ink: #24302a;
+  --muted: #5a6a5f;
+  --line: #b9cfa9;
+  --leaf: #4f9d5d;
+  --leaf-dark: #3a7a47;
+  --acorn: #9a5f2c;
+  --sky: #4fa6d8;
+  --alert: #d9503f;
+  --gold: #f2c14e;
+  --solution: #7a4fc0;
+  --solution-soft: #ece4f8;
+  --problem-soft: #dcefd9;
+  --pixel: "Pixelify Sans", "Courier New", monospace;
+  --text: "Nunito", "Trebuchet MS", system-ui, sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { background: var(--frame); }
+body {
+  margin: 0;
+  color: var(--panel);
+  font-family: var(--text);
+  font-size: 16px;
+  line-height: 1.45;
+}
+.wrap {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding-block: 18px 28px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+button { font: inherit; }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
+
+/* Header + HUD */
+.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px 20px; flex-wrap: wrap; margin-bottom: 14px; }
+.top h1 { font-family: var(--pixel); font-weight: 700; font-size: clamp(1.8rem, 4vw, 2.6rem); line-height: 1; margin: 0; letter-spacing: 0.01em; color: #fdf6d8; text-shadow: 3px 3px 0 var(--edge); }
+.sub { margin: 6px 0 0; color: #b9d6c4; font-size: 0.95rem; }
+.hud { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.pill { font-family: var(--pixel); font-size: 1.05rem; background: var(--frame-2); border: 3px solid var(--edge); border-radius: 8px; padding: 4px 10px; display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.pill svg { width: 16px; height: 18px; image-rendering: pixelated; }
+
+.btn {
+  font-family: var(--pixel);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--ink);
+  background: var(--gold);
+  border: 3px solid var(--edge);
+  border-radius: 8px;
+  padding: 6px 14px;
+  cursor: pointer;
+  box-shadow: 0 3px 0 var(--edge);
+  transition: transform 80ms ease, box-shadow 80ms ease;
+}
+.btn:hover { transform: translateY(-1px); box-shadow: 0 4px 0 var(--edge); }
+.btn:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--edge); }
+.btn:disabled { opacity: 0.5; cursor: default; transform: none; box-shadow: 0 3px 0 var(--edge); }
+.btn.ghost { background: var(--panel); }
+.btn.green { background: #8fd18a; }
+
+/* Game grid */
+.game { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 16px; align-items: start; }
+@media (max-width: 920px) { .game { grid-template-columns: minmax(0, 1fr); } }
+.left { min-width: 0; }
+.stage {
+  position: relative;
+  border: 4px solid var(--edge);
+  border-radius: 10px;
+  overflow: hidden;
+  background: #7cc56c;
+  line-height: 0;
+  box-shadow: 0 6px 0 var(--edge);
+}
+#world { width: 100%; height: auto; display: block; image-rendering: pixelated; image-rendering: crisp-edges; cursor: pointer; touch-action: manipulation; }
+
+.title-screen {
+  position: absolute; inset: 0;
+  display: grid; place-items: center; text-align: center;
+  background: rgba(16, 36, 31, 0.72);
+  line-height: 1.3;
+  padding: 16px;
+}
+.title-screen h2 { font-family: var(--pixel); font-size: clamp(1.7rem, 5vw, 3rem); margin: 0 0 6px; color: #fdf6d8; text-shadow: 3px 3px 0 var(--edge); }
+.title-screen p { margin: 0 auto 14px; max-width: 36ch; color: #dcecd9; }
+.title-screen .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+/* Dialogue strip */
+.dialog {
+  margin-top: 14px;
+  background: var(--panel);
+  color: var(--ink);
+  border: 4px solid var(--edge);
+  border-radius: 10px;
+  padding: 12px 16px 14px;
+  min-height: 128px;
+  box-shadow: 0 6px 0 var(--edge);
+  cursor: default;
+}
+.who { display: inline-block; font-family: var(--pixel); font-weight: 700; font-size: 0.95rem; color: #fff; background: var(--leaf-dark); padding: 2px 10px; border-radius: 6px; margin-bottom: 6px; }
+.who.you { background: var(--sky); }
+.who.sys { background: var(--acorn); }
+.who.obj { background: #6b6f63; }
+.line { margin: 0; font-size: 1.08rem; min-height: 1.5em; }
+.dialog .next { margin-top: 8px; font-family: var(--pixel); font-size: 0.9rem; color: var(--muted); background: none; border: 0; padding: 0; cursor: pointer; }
+.dialog .next::after { content: " ▸"; display: inline-block; animation: nudge 0.9s steps(2) infinite; }
+@keyframes nudge { 50% { transform: translateX(3px); } }
+.choices { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.choice {
+  text-align: left;
+  font-family: var(--text); font-weight: 700; font-size: 1rem;
+  color: var(--ink); background: #fff;
+  border: 3px solid var(--line); border-radius: 8px;
+  padding: 8px 12px; cursor: pointer;
+}
+.choice:hover { border-color: var(--leaf-dark); }
+.choice .n { font-family: var(--pixel); color: var(--muted); margin-right: 8px; }
+.keys { margin: 6px 0 0; font-size: 0.88rem; color: var(--muted); }
+.keys kbd { font-family: var(--pixel); background: var(--panel-2); border: 2px solid var(--line); border-radius: 4px; padding: 0 5px; }
+
+/* Journal */
+.journal {
+  background: var(--panel);
+  color: var(--ink);
+  border: 4px solid var(--edge);
+  border-radius: 10px;
+  padding: 14px 16px 16px;
+  box-shadow: 0 6px 0 var(--edge);
+  min-width: 0;
+}
+.journal h2 { font-family: var(--pixel); font-size: 1.35rem; margin: 0 0 2px; }
+.journal h3 { font-family: var(--pixel); font-size: 1.15rem; margin: 2px 0 10px; color: var(--leaf-dark); }
+.case-tag { font-family: var(--pixel); font-size: 0.85rem; color: var(--muted); margin: 8px 0 0; }
+.steps { list-style: none; padding: 0; margin: 0 0 12px; display: grid; gap: 4px; }
+.steps li { display: flex; gap: 8px; align-items: center; font-size: 0.92rem; color: var(--muted); }
+.steps li::before { content: ""; width: 12px; height: 12px; border: 2px solid var(--line); border-radius: 3px; flex: none; }
+.steps li.done { color: var(--ink); }
+.steps li.done::before { background: var(--leaf); border-color: var(--leaf-dark); }
+.steps li.now { color: var(--ink); font-weight: 800; }
+.steps li.now::before { border-color: var(--gold); background: #fff3c4; }
+.card { border-radius: 8px; padding: 8px 10px; margin: 0 0 8px; font-size: 0.95rem; }
+.card .tag { display: block; font-family: var(--pixel); font-size: 0.75rem; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 2px; }
+.card.solution { background: var(--solution-soft); }
+.card.solution .tag { color: var(--solution); }
+.card.problem { background: var(--problem-soft); }
+.card.problem .tag { color: var(--leaf-dark); }
+.clues-h { font-family: var(--pixel); font-size: 0.95rem; margin: 12px 0 6px; display: flex; justify-content: space-between; }
+.clues { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.clue { background: #fff; border: 2px solid var(--line); border-radius: 6px; padding: 6px 9px; font-size: 0.92rem; }
+.clue.unknown { background: transparent; border-style: dashed; color: var(--muted); font-family: var(--pixel); }
+.tests { margin-top: 12px; background: var(--panel-2); border-radius: 8px; padding: 8px 10px; font-size: 0.88rem; }
+.tests b { font-family: var(--pixel); font-weight: 600; }
+.hint { font-size: 0.95rem; }
+.journal .btn { width: 100%; margin-top: 12px; }
+.journal .btn.pulse { animation: pulse 1.2s ease-in-out infinite; }
+@keyframes pulse { 50% { box-shadow: 0 3px 0 var(--edge), 0 0 0 5px rgba(242,193,78,0.45); } }
+
+footer { margin-top: 24px; font-size: 0.85rem; color: #a9c8b6; }
+footer a { color: #fdf6d8; }
+
+/* Modal */
+.modal-back {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(10, 25, 22, 0.66);
+  display: grid; place-items: center;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+.modal {
+  width: 100%; max-width: 580px;
+  max-height: calc(100vh - 32px); overflow: auto;
+  background: var(--panel); color: var(--ink);
+  border: 4px solid var(--edge); border-radius: 12px;
+  box-shadow: 0 8px 0 var(--edge);
+  padding: 18px 20px 20px;
+}
+.modal h2 { font-family: var(--pixel); font-size: 1.6rem; margin: 0 0 6px; }
+.modal h3 { font-family: var(--pixel); font-size: 1.1rem; margin: 14px 0 6px; }
+.modal p { margin: 0 0 10px; }
+.modal .small { font-size: 0.9rem; color: var(--muted); }
+.modal .row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+.chain { list-style: none; padding: 0; margin: 10px 0 12px; border-left: 4px solid var(--line); }
+.chain li { padding: 4px 0 8px 12px; }
+.chain .k { display: block; font-family: var(--pixel); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.chain li.sym .k { color: var(--leaf-dark); }
+.chain li.pick { cursor: pointer; border-radius: 6px; }
+.ask-why { background: #fff; border: 3px dashed var(--line); border-radius: 8px; padding: 8px 12px; }
+.cards { display: grid; gap: 8px; margin-top: 10px; }
+.clue-card {
+  text-align: left; font-family: var(--text); font-weight: 700; font-size: 0.98rem;
+  background: #fff; color: var(--ink);
+  border: 3px solid var(--line); border-radius: 8px;
+  padding: 9px 12px; cursor: pointer;
+}
+.clue-card:hover:not(:disabled) { border-color: var(--leaf-dark); }
+.clue-card:disabled { opacity: 0.45; cursor: default; text-decoration: line-through; }
+.clue-card .lbl { display: block; font-family: var(--pixel); font-weight: 600; font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.fb { border-radius: 8px; padding: 9px 12px; margin-top: 10px; font-size: 0.98rem; }
+.fb.ok { background: var(--problem-soft); }
+.fb.no { background: #fbe3df; }
+.shake { animation: shake 0.3s; }
+@keyframes shake { 25% { transform: translateX(-4px); } 75% { transform: translateX(4px); } }
+.icon { width: 48px; height: 48px; image-rendering: pixelated; flex: none; }
+.icon-big { width: 96px; height: 96px; image-rendering: pixelated; display: block; margin: 6px auto 10px; background: var(--panel-2); border-radius: 10px; padding: 8px; }
+.shop { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 8px; }
+.shop li { display: flex; align-items: center; gap: 12px; background: #fff; border: 2px solid var(--line); border-radius: 8px; padding: 8px 10px; }
+.shop .nm { flex: 1; min-width: 0; font-weight: 800; }
+.shop .pr { font-family: var(--pixel); color: var(--acorn); font-variant-numeric: tabular-nums; }
+.room { width: 100%; height: auto; image-rendering: pixelated; border: 4px solid var(--edge); border-radius: 10px; display: block; margin: 8px 0; }
+.cert { text-align: center; border: 4px double var(--acorn); border-radius: 10px; padding: 14px; background: #fffbe8; }
+.cert .big { font-family: var(--pixel); font-size: 1.8rem; margin: 4px 0; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 12px 0; }
+.stats div { background: var(--panel-2); border-radius: 8px; padding: 8px; }
+.stats b { display: block; font-family: var(--pixel); font-size: 1.4rem; font-variant-numeric: tabular-nums; }
+.learned ul { padding-left: 1.2rem; margin: 0; }
+.learned li { margin-bottom: 4px; }
+.modal a { color: var(--leaf-dark); font-weight: 700; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <h1>Mossbrook Fixer</h1>
+      <p class="sub">A cozy village game for Product Thinking Lessons 01 and 02</p>
+    </div>
+    <div class="hud">
+      <span class="pill" title="Acorns"><svg viewBox="0 0 8 9" aria-hidden="true"><rect x="1" y="0" width="6" height="1" fill="#6b4423"/><rect x="0" y="1" width="8" height="2" fill="#7a4e2c"/><rect x="3" y="0" width="2" height="1" fill="#3b2417"/><rect x="1" y="3" width="6" height="3" fill="#c98a4a"/><rect x="2" y="6" width="4" height="2" fill="#c98a4a"/><rect x="3" y="8" width="2" height="1" fill="#c98a4a"/><rect x="2" y="3" width="1" height="2" fill="#e8b07a"/></svg><span id="acorns">0</span></span>
+      <span class="pill" id="caseLabel">Case 1 of 4</span>
+      <button class="btn ghost" id="roomBtn" type="button">Your room</button>
+      <button class="btn ghost" id="helpBtn" type="button">How to play</button>
+    </div>
+  </header>
+
+  <div class="game">
+    <div class="left">
+      <div class="stage">
+        <canvas id="world" width="320" height="224" aria-label="Map of Mossbrook village. Use arrow keys or tap to move."></canvas>
+        <div class="title-screen" id="titleScreen">
+          <div>
+            <h2>Mossbrook Fixer</h2>
+            <p>Villagers keep asking for shiny new things. Find the real problem, dig with “why?”, and fix the right thing.</p>
+            <div class="row" id="titleButtons"></div>
+          </div>
+        </div>
+      </div>
+      <div class="dialog" id="dialog" aria-live="polite"></div>
+    </div>
+    <aside class="journal" id="journal" aria-label="Fixer's journal"></aside>
+  </div>
+
+  <footer>
+    Based on the Institute of Digital Government’s <a href="https://www.idg.gov.sg/product-thinking/">Product Thinking pathway</a>:
+    <a href="../lessons/0001-problems-before-solutions.html">Lesson 01, Problems before solutions</a> and
+    <a href="../lessons/0002-start-with-the-whys.html">Lesson 02, Start with the whys</a>.
+    Mossbrook and its villagers are invented. Progress is saved in this browser.
+  </footer>
+</div>
+
+<div class="modal-back" id="modalBack" hidden>
+  <div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Game window"></div>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (s) => document.querySelector(s);
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* ================= World map ================= */
+  const W = 20, H = 14, TS = 16;
+  const G = 0, P = 1, WA = 2, BR = 3, TR = 4, FL = 5, BL = 6, SO = 7;
+  const tiles = Array.from({ length: H }, () => Array(W).fill(G));
+  const set = (x, y, t) => { if (x >= 0 && y >= 0 && x < W && y < H) tiles[y][x] = t; };
+  for (let x = 0; x < W; x++) { set(x, 0, TR); set(x, H - 1, TR); }
+  for (let y = 0; y < H; y++) { set(0, y, TR); set(W - 1, y, TR); }
+  for (let y = 0; y < H; y++) { set(13, y, WA); set(14, y, WA); }
+  const hline = (y, a, b) => { for (let x = a; x <= b; x++) if (tiles[y][x] !== WA) set(x, y, P); };
+  const vline = (x, a, b) => { for (let y = a; y <= b; y++) set(x, y, P); };
+  hline(6, 1, 18); set(13, 6, BR); set(14, 6, BR);
+  vline(3, 4, 5); vline(7, 4, 5); vline(10, 4, 5);
+  vline(5, 7, 11); hline(11, 3, 5);
+  vline(15, 3, 11); set(16, 3, P); hline(11, 15, 17);
+  [[1, 2], [18, 1], [12, 1], [12, 11], [9, 12], [1, 10], [6, 12], [18, 4], [16, 12]].forEach(([x, y]) => set(x, y, TR));
+  [[2, 5], [4, 5], [11, 7], [1, 7], [8, 8], [6, 9], [10, 12], [3, 12], [18, 2], [12, 8], [16, 7], [17, 12], [1, 5], [4, 12]].forEach(([x, y]) => set(x, y, FL));
+
+  const BUILDINGS = [
+    { id: "bakery", x: 2, y: 1, w: 3, h: 3, door: [3, 3], roof: "#d9744f", sign: "bread" },
+    { id: "library", x: 6, y: 1, w: 3, h: 3, door: [7, 3], roof: "#6c5ba7", sign: "book" },
+    { id: "hall", x: 9, y: 1, w: 3, h: 3, door: [10, 3], roof: "#3d7fd1", sign: "flag" },
+    { id: "house", x: 2, y: 8, w: 3, h: 3, door: [3, 10], roof: "#e86f9a", sign: "heart" },
+    { id: "market", x: 15, y: 1, w: 3, h: 2, door: null, roof: "market" },
+    { id: "mill", x: 16, y: 8, w: 3, h: 3, door: [17, 10], roof: "#a0522d", sign: "wheat" },
+  ];
+  BUILDINGS.forEach((b) => { for (let y = b.y; y < b.y + b.h; y++) for (let x = b.x; x < b.x + b.w; x++) set(x, y, BL); });
+  for (let y = 9; y <= 10; y++) for (let x = 8; x <= 10; x++) set(x, y, SO);
+
+  const OBJECTS = { noticeBoard: [5, 4], flourSacks: [5, 2], bookCart: [8, 4], bridgeSign: [12, 7], tideChart: [18, 7] };
+
+  const NPC = {
+    bramble: { x: 2, y: 4, name: "Bramble", sp: "badger" },
+    juniper: { x: 6, y: 4, name: "Juniper", sp: "owl" },
+    cobble: { x: 11, y: 4, name: "Mayor Cobble", sp: "tortoise" },
+    tansy: { x: 11, y: 9, name: "Tansy", sp: "frog" },
+    pim: { x: 8, y: 7, name: "Pim", sp: "hedgehog" },
+    olu: { x: 17, y: 5, name: "Olu", sp: "otter" },
+    fenn: { x: 18, y: 11, name: "Fenn", sp: "mole" },
+  };
+
+  const NAMES = {
+    noticeBoard: "Notice board", flourSacks: "Flour sacks", bookCart: "Returns cart", bridgeSign: "Bridge sign",
+    tideChart: "Tide chart", bakeryDoor: "Bakery", libraryDoor: "Library", hallDoor: "Town Hall", houseDoor: "Your house",
+    millDoor: "Mill", market: "Market stall", beds: "Garden beds",
+  };
+
+  // Interactable tiles → id
+  const INTER = new Map();
+  const key = (x, y) => x + "," + y;
+  Object.entries(OBJECTS).forEach(([id, [x, y]]) => INTER.set(key(x, y), id));
+  Object.entries(NPC).forEach(([id, n]) => INTER.set(key(n.x, n.y), id));
+  BUILDINGS.forEach((b) => {
+    if (b.id === "market") { for (let x = b.x; x < b.x + b.w; x++) for (let y = b.y; y < b.y + b.h; y++) INTER.set(key(x, y), "market"); }
+    else if (b.door) INTER.set(key(b.door[0], b.door[1]), b.id + "Door");
+  });
+  for (let y = 9; y <= 10; y++) for (let x = 8; x <= 10; x++) INTER.set(key(x, y), "beds");
+  const BUBBLE_AT = { market: [16, 1], beds: [9, 9] };
+  Object.entries(OBJECTS).forEach(([id, p]) => (BUBBLE_AT[id] = p));
+  Object.entries(NPC).forEach(([id, n]) => (BUBBLE_AT[id] = [n.x, n.y]));
+  BUILDINGS.forEach((b) => { if (b.door) BUBBLE_AT[b.id + "Door"] = b.door; });
+
+  const occupied = new Set([...Object.values(OBJECTS).map(([x, y]) => key(x, y)), ...Object.values(NPC).map((n) => key(n.x, n.y))]);
+  const walkable = (x, y) => x >= 0 && y >= 0 && x < W && y < H && [G, P, BR, FL].includes(tiles[y][x]) && !occupied.has(key(x, y));
+
+  /* ================= Story content ================= */
+  const HERRING = {
+    blame: "That blames people. Ask “why?” about it and you usually find a process you can change. It doesn’t explain the line above.",
+    control: "That might be true, but nobody in Mossbrook can change it, and it doesn’t explain the line above.",
+    loose: "True, but it doesn’t explain the line above. Look for the clue that directly causes it.",
+  };
+
+  const CASES = [
+    {
+      id: "bread", who: "bramble", title: "Bramble’s bread", askShort: "A bigger oven",
+      ask: ["Oh, Fixer, thank goodness! I need a bigger oven. A HUGE one. Can you sort it out?"],
+      replies: [
+        { label: "Sure, I will order one today!", ok: false, res: "Wonderful! Though... will a bigger oven actually fix things? I’m not sure." },
+        { label: "What goes wrong, and for whom?", ok: true, res: "Ah. Well, let me tell you what’s been happening." },
+        { label: "Should we add AI to it?", ok: false, res: "An AI oven? I just want people to get their bread!" },
+      ],
+      symptom: ["My bread sells out by nine every morning.", "Anyone who comes after that goes home empty-handed. I counted fourteen sad faces yesterday!"],
+      problems: [
+        { t: "Bramble needs a much bigger oven to bake more bread.", fb: "That’s still the oven, which is a solution. Pick the line that says who is affected and how you know." },
+        { t: "Bread sells out by nine; fourteen late customers left empty-handed.", fb: "Yes. It says who (late customers), what goes wrong (no bread), and how you know (fourteen yesterday)." },
+        { t: "Villagers simply love bread too much and should buy less.", fb: "That blames the villagers and gives you nothing to check. Try again." },
+      ],
+      problemAnswer: 1,
+      digIntro: "But why does it sell out? Ask around: the bakery, the flour, the mill, the neighbours. I’ll be here kneading.",
+      clues: { bakeryDoor: "w1", flourSacks: "w2", fenn: "w3", pim: "h1" },
+      cards: {
+        w1: { step: 1, text: "Bramble only bakes one batch a day, before dawn.", say: ["(You peek into the bakery.)", "One tray of loaves is cooling and the oven is cold. There’s only one bake a day."] },
+        w2: { step: 2, text: "The flour runs out after that one batch.", say: ["The sacks are almost empty.", "A tag reads: “Enough for one batch a day.”"] },
+        w3: { step: 3, text: "The mill cart only delivers flour once a week.", say: ["Flour for Bramble? The cart goes out on Mondays, once a week.", "It’s always been Mondays. Nobody’s ever asked for more."] },
+        h1: { herring: "blame", text: "Villagers are greedy and buy too many loaves.", say: ["Between you and me, folks are just greedy.", "They buy three loaves when they need one!"] },
+      },
+      cardOrder: ["w2", "h1", "w3", "w1"],
+      fix: [
+        { k: "w1", ok: false, why: "Baking more batches needs flour Bramble doesn’t have." },
+        { k: "solution", label: "Build a bigger oven", ok: false, why: "A bigger oven still has no extra flour to bake with." },
+        { k: "w3", ok: true, why: "The village can ask Fenn to deliver twice a week. That’s within your control, and it leads straight to bread later in the day." },
+        { k: "w2", ok: false, why: "Empty sacks are what you can see. The cause sits one step below." },
+      ],
+      thanks: ["Fenn’s cart comes twice a week now. I bake a second batch at eleven!", "Here, take this lamp. It’s shaped like a loaf. Please don’t eat it."],
+      reward: "loafLamp",
+    },
+    {
+      id: "garden", who: "tansy", title: "Tansy’s seedlings", askShort: "A robot scarecrow with lasers",
+      ask: ["Ribbit! Fixer! I need a robot scarecrow. With lasers. Today, please!"],
+      replies: [
+        { label: "Lasers? I will build it tonight!", ok: false, res: "Ooh! Wait. Would lasers even help my seedlings?" },
+        { label: "Could an AI scarecrow do it?", ok: false, res: "Maybe? I don’t know! I just know my seedlings keep vanishing." },
+        { label: "What’s going wrong in the garden?", ok: true, res: "Oh, it’s awful. Let me show you." },
+      ],
+      symptom: ["I planted forty seedlings this month.", "Only thirteen are left. Two-thirds, gone!"],
+      problems: [
+        { t: "Two-thirds of seedlings vanished this month: thirteen of forty remain.", fb: "Yes. It says what went wrong and how much, with numbers you can check." },
+        { t: "Tansy’s garden needs a robot scarecrow to guard it well.", fb: "That’s the robot scarecrow again, a solution. Look for the line about what went wrong." },
+        { t: "Gardening is just really hard, and seedlings often die anyway.", fb: "That gives up before diagnosing anything. Try again." },
+      ],
+      problemAnswer: 0,
+      digIntro: "Something’s eating them, I’m sure. Check the beds, ask by the river, and ask the mayor. He remembers everything.",
+      clues: { beds: "w1", olu: "w2", cobble: "w3", noticeBoard: "h1" },
+      cards: {
+        w1: { step: 1, text: "Snails are eating the seedlings at night.", say: ["Silvery slime trails cross the beds.", "There are little bites on every leaf. Snails, at night."] },
+        w2: { step: 2, text: "Snails crawl up from the riverbank every evening.", say: ["Snails? Oh, loads of them climb up from the riverbank at dusk.", "They head straight for the garden."] },
+        w3: { step: 3, text: "The copper strip that kept snails out was dug up when the garden grew, and never put back.", say: ["Ah, the garden! There used to be a copper strip around the beds. Snails won’t cross copper.", "We dug it up when we made the garden bigger last spring. Nobody put it back."] },
+        h1: { herring: "control", text: "It has been a very rainy month.", say: ["A weather notice: “Wettest month in ten years!”"] },
+      },
+      cardOrder: ["w3", "w1", "h1", "w2"],
+      fix: [
+        { k: "solution", label: "Build a robot scarecrow", ok: false, why: "Scarecrows scare birds. Snails come at night and don’t care." },
+        { k: "w2", ok: false, why: "Nobody can move the riverbank. It’s outside your control." },
+        { k: "w1", ok: false, why: "You could pick snails off every night, but more would keep coming." },
+        { k: "w3", ok: true, why: "Putting the copper strip back is cheap and within your control, and it stops snails reaching the seedlings." },
+      ],
+      thanks: ["The copper strip is back, and not one seedling was lost this week!", "Take this fern. It’s very hard to kill. Trust me."],
+      reward: "fern",
+    },
+    {
+      id: "library", who: "juniper", title: "Juniper’s late books", askShort: "A talking AI catalogue",
+      ask: ["Hoo! Fixer! The library needs a talking AI catalogue. Very modern. Very wise."],
+      replies: [
+        { label: "What problem would it solve, exactly?", ok: true, res: "Hoo. Good question. Let me think about what’s actually wrong." },
+        { label: "Yes! I’ll set it up today!", ok: false, res: "Splendid! Although I’m not sure what it would fix." },
+        { label: "Let’s put a robot in it!", ok: false, res: "A robot? I’m a librarian, not an inventor!" },
+      ],
+      symptom: ["Books come back three weeks late, on average.", "Twelve villagers are waiting for “The Moss Detective”. Twelve!"],
+      problems: [
+        { t: "The library should get a talking AI catalogue very soon.", fb: "That’s the catalogue again, a solution." },
+        { t: "Books return three weeks late; twelve villagers wait on one.", fb: "Yes. It says who is waiting, what goes wrong, and gives numbers you can check." },
+        { t: "Villagers are careless readers who never respect the library’s rules.", fb: "That blames people and gives you nothing to measure." },
+      ],
+      problemAnswer: 1,
+      digIntro: "Why are books late? Ask the villagers, check the notice board, and look at my returns cart.",
+      clues: { pim: "w1", bramble: "w2", noticeBoard: "w3", bookCart: "h1" },
+      cards: {
+        w1: { step: 1, text: "Villagers forget when their books are due.", say: ["Late books? Folks tell me they simply forget the due date.", "Can’t blame them. Nobody reminds them anymore."] },
+        w2: { step: 2, text: "Nobody reminds them: the Friday reminder bell stopped.", say: ["The library? I used to hear the Friday reminder bell from my oven.", "“Ding, ding, return your books!” I haven’t heard it in a year."] },
+        w3: { step: 3, text: "The bell-ringer moved away, and nobody was given the job.", say: ["An old rota, curling at the edges:", "“Friday reminder bell: rung by Hazel.” Hazel moved away last spring. No name since."] },
+        h1: { herring: "loose", text: "Some of these books are 600 pages long.", say: ["The top book on the cart is 600 pages long. Phew."] },
+      },
+      cardOrder: ["h1", "w3", "w1", "w2"],
+      fix: [
+        { k: "w1", ok: false, why: "You can’t fix memory directly. Something should be reminding people." },
+        { k: "w3", ok: true, why: "Give the bell to a named volunteer. That’s within your control, and it brings the reminders back for good." },
+        { k: "solution", label: "Build a talking AI catalogue", ok: false, why: "A catalogue helps people find books. It doesn’t get them returned." },
+        { k: "w2", ok: false, why: "Ringing the bell once helps this week. With nobody owning the job, it stops again." },
+      ],
+      thanks: ["Pim rings the Friday bell now. Books are coming back on time!", "Please take this tiny bookshelf. It holds exactly four tiny books."],
+      reward: "bookshelf",
+    },
+    {
+      id: "bridge", who: "olu", title: "Olu’s bridge queue", askShort: "A second bridge",
+      ask: ["Fixer! We need a second bridge. A big shiny one! The old one is hopeless."],
+      replies: [
+        { label: "Two bridges! I’ll fetch the planks!", ok: false, res: "Yes! Wait... building a bridge takes all summer." },
+        { label: "An AI bridge could direct traffic!", ok: false, res: "A talking bridge? Sounds noisy." },
+        { label: "What happens at the bridge now?", ok: true, res: "Ugh. Every morning it’s the same." },
+      ],
+      symptom: ["Every morning, folks on the east bank queue about twenty minutes to cross.", "The rest of the day? Nobody there at all."],
+      problems: [
+        { t: "The village urgently needs a second, much bigger bridge built.", fb: "That’s the second bridge again, a solution." },
+        { t: "The bridge is old and everyone simply walks far too slowly.", fb: "That blames people and the bridge, with nothing to check." },
+        { t: "East-bank villagers queue about twenty minutes each morning to cross.", fb: "Yes. It says who, what, when, and gives a figure you can check." },
+      ],
+      problemAnswer: 2,
+      digIntro: "Why the queue, though? Check the bridge sign, the market stall, and the tide chart by the dock.",
+      clues: { bridgeSign: "w1", market: "w2", tideChart: "w3", pim: "h1" },
+      cards: {
+        w1: { step: 1, text: "Almost everyone crosses between 8 and 9 in the morning.", say: ["Someone has scratched tally marks on the sign post.", "Nearly all of them are between 8 and 9 in the morning."] },
+        w2: { step: 2, text: "The fish market is only open from 8 to 9.", say: ["A sign on the stall: “Fresh fish: 8 to 9 a.m. only.”"] },
+        w3: { step: 3, text: "Boats can only land at high tide, around 8.", say: ["The tide chart shows high tide around 8 every morning.", "The fishing boats can only land then."] },
+        h1: { herring: "blame", text: "Otters stop to chat in the middle of the bridge.", say: ["It’s those otters. They stop to chat right in the middle!"] },
+      },
+      cardOrder: ["w1", "h1", "w3", "w2"],
+      fix: [
+        { k: "w3", ok: false, why: "Nobody controls the tide. It’s outside your reach." },
+        { k: "w1", ok: false, why: "You can’t order people to walk at other times. Something makes them all come at once." },
+        { k: "w2", ok: true, why: "Keep the fish on ice and open the market until noon. That’s within your control, and it spreads the crowd across the morning." },
+        { k: "solution", label: "Build a second bridge", ok: false, why: "A second bridge takes all summer. The queue comes from timing, not the bridge." },
+      ],
+      thanks: ["The market’s open till noon now, and the queue’s gone. Nobody waits more than a minute!", "Here’s a rug shaped like a fish. Wipe your paws on it."],
+      reward: "fishRug",
+    },
+  ];
+
+  const ITEMS = {
+    loafLamp: "Loaf lamp", fern: "Potted fern", bookshelf: "Tiny bookshelf", fishRug: "Fish rug",
+    stool: "Mushroom stool", lantern: "Lantern", starRug: "Star rug", fountain: "Little fountain",
+  };
+  const SHOP = [
+    { id: "stool", price: 15 }, { id: "lantern", price: 25 }, { id: "starRug", price: 30 }, { id: "fountain", price: 40 },
+  ];
+
+  const IDLE = {
+    bramble: ["Fresh loaves, fresh gossip. Mostly loaves."],
+    juniper: ["Hoo. A quiet library is a happy library."],
+    cobble: ["Mossbrook runs on good questions, Fixer."],
+    tansy: ["Ribbit. Mind the seedlings!"],
+    pim: ["Post’s late? Not on my watch!", "I hear everything around here. Not all of it is true."],
+    olu: ["The river’s lovely this time of day."],
+    fenn: ["The mill turns, the flour flows."],
+    noticeBoard: ["Notices: “Choir on Thursdays.” “Lost: one blue mitten.”"],
+    flourSacks: ["Sacks of flour from Fenn’s mill."],
+    bookCart: ["A cart of returned books."],
+    bridgeSign: ["“Mossbrook Bridge. Please walk, don’t waddle.”"],
+    tideChart: ["A tide chart for the fishing boats."],
+    bakeryDoor: ["The bakery smells of warm bread."],
+    libraryDoor: ["The library. A sign on the door says: “Shh.”"],
+    hallDoor: ["Mossbrook Town Hall. Mayor Cobble is usually just outside."],
+    millDoor: ["The mill creaks as it turns."],
+    beds: ["Rows of seedlings in the community garden."],
+  };
+  const IDLE_SOLVED = {
+    bread: { bramble: ["Second batch at eleven now. Come by!"], fenn: ["Twice a week to the bakery now. My cart’s never been so popular."] },
+    garden: { tansy: ["Look at them grow! Copper: the snail’s worst enemy."] },
+    library: { juniper: ["Hoo! The waitlist is down to two."], pim: ["I ring the Friday bell now. Ding, ding!"] },
+    bridge: { olu: ["Morning walks are peaceful again."], market: null },
+  };
+
+  /* ================= State + saving ================= */
+  const SAVE_KEY = "mossbrook-fixer-v1";
+  const fresh = () => ({ introDone: false, caseIdx: 0, phase: "offer", found: [], chain: [], mistakes: 0, wrongFix: [], acorns: 0, earned: 0, items: [], solved: [], perfect: 0, px: 7, py: 7 });
+  let S = fresh();
+  function load() { try { const raw = localStorage.getItem(SAVE_KEY); return raw ? JSON.parse(raw) : null; } catch (e) { return null; } }
+  function save() { try { localStorage.setItem(SAVE_KEY, JSON.stringify(S)); } catch (e) { /* storage blocked: play continues unsaved */ } }
+  function wipe() { try { localStorage.removeItem(SAVE_KEY); } catch (e) {} }
+
+  /* ================= Drawing helpers ================= */
+  const R = (c, x, y, w, h, col) => { c.fillStyle = col; c.fillRect(x, y, w, h); };
+  const hsh = (x, y, i) => { let n = (x * 374761393 + y * 668265263 + i * 982451653) | 0; n = Math.imul(n ^ (n >>> 13), 1274126177); return (n ^ (n >>> 16)) >>> 0; };
+  function shade(hex, amt) {
+    const n = parseInt(hex.slice(1), 16);
+    const f = (v) => Math.max(0, Math.min(255, Math.round(v * amt)));
+    return "#" + [f(n >> 16), f((n >> 8) & 255), f(n & 255)].map((v) => v.toString(16).padStart(2, "0")).join("");
+  }
+  const mk = (w, h) => { const c = document.createElement("canvas"); c.width = w; c.height = h; return c; };
+
+  /* --- Character sprites: one base body, species overrides for ears/heads --- */
+  const BASE = [
+    "................", "................", "....oooooooo....", "...offffffffo...",
+    "..offffffffffo..", "..ofeffffffefo..", "..ofeffffffefo..", "..ocfllllllfco..",
+    "...offlnnlffo...", "....oooooooo....", "...osssssssso...", "..ofssssssssfo..",
+    "..ofssssssssfo..", "...osssssssso...", "...offo..offo...", "...oooo..oooo...",
+  ];
+  const SPECIES = {
+    fox: { rows: { 0: "...o........o...", 1: "..ofo......ofo..", 2: "..offooooooffo.." }, pal: { o: "#3b2417", f: "#e8833a", l: "#fff1dd", e: "#2a1a12", c: "#f59a9a", n: "#2a1a12", s: "#3d7fd1" } },
+    badger: { rows: { 1: "...oo......oo...", 2: "..ofoooooooofo..", 3: "...offfllfffo...", 4: "..offffllffffo.." }, pal: { o: "#26262c", f: "#5b5b66", l: "#f4f4f4", e: "#141418", c: "#f0a0a0", n: "#141418", s: "#e9b44c" } },
+    owl: { rows: { 0: "..oo........oo..", 1: "..ofo......ofo..", 2: "..offooooooffo..", 5: "..ofeeffffeefo..", 6: "..ofeeffffeefo.." }, pal: { o: "#4a3424", f: "#9a7a5c", l: "#e8d6b8", e: "#1d140e", c: "#e9a7a0", n: "#f2b632", s: "#6c5ba7" } },
+    tortoise: { rows: { 1: "....kkkkkkkk....", 2: "...kkkkkkkkkk..." }, pal: { o: "#2f4a28", f: "#7fb069", l: "#d9ecc4", e: "#1b2a17", c: "#f0a0a0", n: "#2f4a28", s: "#8b5e34", k: "#3b3b48" } },
+    frog: { rows: { 1: "..ooo......ooo..", 2: "..oeooooooooeo..", 5: "..offffffffffo..", 6: "..offffffffffo..", 8: "...offllllffo..." }, pal: { o: "#245c2a", f: "#6cc06a", l: "#e7f6c8", e: "#10240f", c: "#f39ab5", n: "#245c2a", s: "#e86f9a" } },
+    otter: { rows: { 1: "...oo......oo...", 2: "..ofoooooooofo.." }, pal: { o: "#3e2416", f: "#8b5a3c", l: "#e5c29f", e: "#1d100a", c: "#e8a090", n: "#1d100a", s: "#2f9fb4" } },
+    hedgehog: { rows: { 0: "...d.d.d.d.d.d..", 1: "..dddddddddddd..", 2: "..dddddddddddd..", 3: "..ddffffffffdd..", 4: "..dffffffffffd.." }, pal: { o: "#4a3322", f: "#c89b6d", l: "#f6e3c8", e: "#22160d", c: "#f0a0a0", n: "#22160d", s: "#d9534f", d: "#6b4a33" } },
+    mole: { rows: {}, pal: { o: "#241d27", f: "#4a3f4f", l: "#6b5d70", e: "#0f0b10", c: "#c98aa0", n: "#f0a6bd", s: "#a3c46c" } },
+  };
+  function buildSprite(spName, back) {
+    const sp = SPECIES[spName];
+    const rows = BASE.map((r, i) => sp.rows[i] || r);
+    const c = mk(16, 16), x = c.getContext("2d");
+    rows.forEach((row, y) => {
+      [...row].forEach((ch, px) => {
+        if (ch === ".") return;
+        let k = ch;
+        if (back && y <= 8 && "elcn".includes(k)) k = "f";
+        R(x, px, y, 1, 1, sp.pal[k] || "#f0f");
+      });
+    });
+    return c;
+  }
+  const SPRITES = {};
+  Object.keys(SPECIES).forEach((s) => (SPRITES[s] = buildSprite(s, false)));
+  const PLAYER_BACK = buildSprite("fox", true);
+
+  /* --- Tree sprite --- */
+  const TREE = mk(16, 16);
+  (() => {
+    const c = TREE.getContext("2d");
+    R(c, 3, 14, 10, 2, "rgba(0,0,0,0.16)");
+    R(c, 6, 10, 4, 6, "#7a4e2c"); R(c, 6, 10, 1, 6, "#8f6038");
+    for (let y = 0; y < 12; y++) for (let x = 0; x < 16; x++) {
+      const d = ((x - 7.5) / 7.6) ** 2 + ((y - 5.5) / 5.8) ** 2;
+      if (d <= 1) R(c, x, y, 1, 1, d > 0.72 && y > 6 ? "#2f7a40" : "#3f8f4e");
+      if (d < 0.32 && x < 8 && y < 6) R(c, x, y, 1, 1, "#5fb365");
+    }
+  })();
+
+  /* --- Item icons (16×16) --- */
+  const ICON = {
+    loafLamp(c) { R(c, 4, 14, 8, 2, "#5b3a20"); R(c, 7, 8, 2, 6, "#7a4e2c"); R(c, 4, 2, 8, 1, "#e0a458"); R(c, 3, 3, 10, 5, "#e0a458"); R(c, 4, 4, 2, 1, "#f3c98b"); R(c, 8, 4, 2, 1, "#f3c98b"); R(c, 3, 8, 10, 1, "#b87a35"); R(c, 5, 9, 6, 1, "#ffe9a6"); },
+    fern(c) { R(c, 7, 2, 2, 8, "#3f8f4e"); R(c, 3, 4, 4, 2, "#59ad5f"); R(c, 9, 3, 4, 2, "#59ad5f"); R(c, 2, 7, 5, 2, "#3f8f4e"); R(c, 9, 6, 5, 2, "#3f8f4e"); R(c, 3, 9, 10, 2, "#a45632"); R(c, 4, 11, 8, 5, "#c0673f"); },
+    bookshelf(c) {
+      R(c, 2, 1, 12, 15, "#8a5a35"); R(c, 3, 2, 10, 6, "#4a2f1a"); R(c, 3, 9, 10, 6, "#4a2f1a");
+      ["#d9503f", "#3d7fd1", "#f2c14e", "#4f9d5d", "#6c5ba7"].forEach((col, i) => { R(c, 3 + i * 2, 3, 2, 5, col); R(c, 4 + i * 2 - (i % 2), 10, 1, 5, col); });
+    },
+    fishRug(c) { R(c, 4, 5, 7, 7, "#4fa6d8"); R(c, 3, 6, 9, 5, "#4fa6d8"); R(c, 12, 5, 3, 7, "#3d86b5"); R(c, 11, 7, 1, 3, "#3d86b5"); R(c, 5, 7, 1, 1, "#14302b"); R(c, 8, 6, 1, 5, "#8fd0f0"); R(c, 10, 6, 1, 5, "#8fd0f0"); },
+    stool(c) { R(c, 4, 3, 8, 1, "#d9503f"); R(c, 2, 4, 12, 4, "#d9503f"); R(c, 4, 4, 2, 2, "#fff"); R(c, 9, 5, 2, 2, "#fff"); R(c, 12, 4, 1, 1, "#fff"); R(c, 6, 8, 4, 7, "#f1e4c8"); R(c, 5, 15, 6, 1, "#d8c8a6"); },
+    lantern(c) { R(c, 7, 0, 2, 2, "#3b3b48"); R(c, 4, 2, 8, 1, "#3b3b48"); R(c, 4, 3, 8, 9, "#3b3b48"); R(c, 5, 4, 6, 7, "#f2c14e"); R(c, 6, 5, 4, 5, "#fff2b0"); R(c, 4, 12, 8, 1, "#3b3b48"); },
+    starRug(c) { R(c, 7, 1, 2, 14, "#f2c14e"); R(c, 1, 6, 14, 3, "#f2c14e"); R(c, 4, 4, 8, 7, "#f2c14e"); R(c, 3, 11, 3, 3, "#f2c14e"); R(c, 10, 11, 3, 3, "#f2c14e"); R(c, 6, 6, 4, 3, "#fde59a"); },
+    fountain(c) { R(c, 7, 1, 2, 1, "#8fd0f0"); R(c, 5, 2, 6, 2, "#8fd0f0"); R(c, 7, 4, 2, 6, "#9aa5ad"); R(c, 2, 9, 12, 2, "#b9c3c9"); R(c, 3, 9, 10, 1, "#4fa6d8"); R(c, 1, 11, 14, 4, "#9aa5ad"); R(c, 1, 15, 14, 1, "#7d878e"); },
+  };
+  function drawIcons(root) {
+    root.querySelectorAll("canvas[data-icon]").forEach((cv) => {
+      const c = cv.getContext("2d"); c.clearRect(0, 0, 16, 16); const f = ICON[cv.dataset.icon]; if (f) f(c);
+    });
+  }
+  const iconTag = (id, cls = "icon") => `<canvas class="${cls}" data-icon="${id}" width="16" height="16" aria-hidden="true"></canvas>`;
+
+  /* --- Static background --- */
+  const bg = mk(W * TS, H * TS);
+  const bgc = bg.getContext("2d");
+  const solvedHas = (id) => S.solved.includes(id);
+
+  function drawGrass(c, X, Y, x, y) {
+    R(c, X, Y, 16, 16, "#7cc56c");
+    for (let i = 0; i < 4; i++) { const h = hsh(x, y, i); R(c, X + (h % 15), Y + ((h >> 4) % 14), 1, 2, "#68b15a"); }
+  }
+  function drawTile(c, x, y) {
+    const t = tiles[y][x], X = x * TS, Y = y * TS;
+    if (t === WA) {
+      R(c, X, Y, 16, 16, "#4fa6d8");
+      if (x === 13) R(c, X, Y, 2, 16, "#3b8bbd");
+      if (x === 14) R(c, X + 14, Y, 2, 16, "#3b8bbd");
+      return;
+    }
+    drawGrass(c, X, Y, x, y);
+    if (t === P) {
+      R(c, X, Y, 16, 16, "#e3c98f");
+      for (let i = 0; i < 3; i++) { const h = hsh(x, y, i + 3); R(c, X + (h % 15), Y + ((h >> 5) % 15), 1, 1, "#c9ad73"); }
+    } else if (t === BR) {
+      R(c, X, Y, 16, 16, "#b07d45");
+      for (let i = 0; i < 16; i += 4) R(c, X + i, Y + 2, 1, 12, "#8a5e30");
+      R(c, X, Y, 16, 2, "#6b4423"); R(c, X, Y + 14, 16, 2, "#6b4423");
+    } else if (t === FL) {
+      ["#f6d743", "#f08bb0", "#ffffff"].forEach((col, i) => {
+        const h = hsh(x, y, i + 7); const fx = X + 2 + (h % 11), fy = Y + 2 + ((h >> 5) % 10);
+        R(c, fx, fy + 2, 1, 2, "#3f8f4e"); R(c, fx - 1, fy, 3, 2, col); R(c, fx, fy - 1, 1, 1, col);
+      });
+    } else if (t === TR) {
+      c.drawImage(TREE, X, Y);
+    } else if (t === SO) {
+      R(c, X, Y, 16, 16, "#8a5a35");
+      for (let r = 3; r < 16; r += 5) R(c, X, Y + r, 16, 1, "#734828");
+      const full = solvedHas("garden");
+      const n = full ? 4 : 1;
+      for (let i = 0; i < n; i++) {
+        const sx = X + 2 + (i % 2) * 8 + ((hsh(x, y, i) % 3)), sy = Y + 3 + Math.floor(i / 2) * 7;
+        R(c, sx, sy + 1, 1, 3, "#3f8f4e"); R(c, sx - 1, sy, 1, 2, "#59ad5f"); R(c, sx + 1, sy, 1, 2, "#59ad5f");
+      }
+    }
+  }
+  function drawSign(c, kind, cx, cy) {
+    R(c, cx - 5, cy - 3, 10, 7, "#7a4e2c"); R(c, cx - 4, cy - 2, 8, 5, "#f4e4c1");
+    if (kind === "bread") { R(c, cx - 3, cy - 1, 6, 3, "#d4934a"); R(c, cx - 2, cy - 1, 1, 1, "#f3c98b"); }
+    if (kind === "book") { R(c, cx - 3, cy - 1, 3, 3, "#6c5ba7"); R(c, cx, cy - 1, 3, 3, "#3d7fd1"); }
+    if (kind === "flag") { R(c, cx - 3, cy - 2, 1, 5, "#5b3a20"); R(c, cx - 2, cy - 2, 4, 2, "#d9503f"); }
+    if (kind === "heart") { R(c, cx - 3, cy - 1, 2, 2, "#e86f9a"); R(c, cx + 1, cy - 1, 2, 2, "#e86f9a"); R(c, cx - 2, cy, 4, 2, "#e86f9a"); R(c, cx - 1, cy + 2, 2, 1, "#e86f9a"); }
+    if (kind === "wheat") { R(c, cx, cy - 2, 1, 5, "#c9a227"); R(c, cx - 2, cy - 1, 2, 1, "#e0b93a"); R(c, cx + 1, cy - 1, 2, 1, "#e0b93a"); R(c, cx - 2, cy + 1, 2, 1, "#e0b93a"); R(c, cx + 1, cy + 1, 2, 1, "#e0b93a"); }
+  }
+  function drawBuilding(c, b) {
+    const X = b.x * TS, Y = b.y * TS, w = b.w * TS, h = b.h * TS;
+    if (b.id === "market") {
+      R(c, X + 1, Y + 10, 2, h - 10, "#6b4423"); R(c, X + w - 3, Y + 10, 2, h - 10, "#6b4423");
+      R(c, X + 2, Y + 18, w - 4, 12, "#8a5a35"); R(c, X + 2, Y + 18, w - 4, 2, "#a8763e");
+      for (let i = 0; i < 5; i++) { R(c, X + 6 + i * 8, Y + 14, 6, 3, i % 2 ? "#8fb9d8" : "#a7c7de"); R(c, X + 11 + i * 8, Y + 14, 2, 3, "#6d9cc0"); }
+      for (let i = 0; i < w; i += 6) R(c, X + i, Y + 1, 6, 10, (i / 6) % 2 ? "#ffffff" : "#d9503f");
+      R(c, X, Y + 11, w, 1, "#9e3a2d");
+      return;
+    }
+    const roofH = 24;
+    const wall = b.id === "mill" ? "#d9c9a3" : "#f1dfb6";
+    R(c, X + 2, Y + roofH - 2, w - 4, h - roofH + 2, wall);
+    R(c, X + 2, Y + h - 2, w - 4, 2, shade(wall, 0.85));
+    R(c, X + 2, Y + roofH - 2, 1, h - roofH + 2, shade(wall, 0.9)); R(c, X + w - 3, Y + roofH - 2, 1, h - roofH + 2, shade(wall, 0.9));
+    R(c, X + 4, Y + 1, w - 8, 2, b.roof);
+    R(c, X + 1, Y + 3, w - 2, roofH - 5, b.roof);
+    for (let yy = Y + 6; yy < Y + roofH - 3; yy += 4) R(c, X + 2, yy, w - 4, 1, shade(b.roof, 0.82));
+    R(c, X, Y + roofH - 3, w, 2, shade(b.roof, 0.65));
+    R(c, X + 4, Y + 1, w - 8, 1, shade(b.roof, 1.18));
+    const wy = Y + roofH + 2;
+    [X + 5, X + w - 11].forEach((wx) => { R(c, wx, wy, 6, 6, "#5b3a20"); R(c, wx + 1, wy + 1, 4, 4, "#9fd3f0"); R(c, wx + 1, wy + 1, 2, 2, "#d8f0fb"); });
+    if (b.door) {
+      const dx = b.door[0] * TS;
+      R(c, dx + 4, Y + h - 12, 8, 12, "#6b4423"); R(c, dx + 5, Y + h - 11, 6, 11, "#8f5d35"); R(c, dx + 9, Y + h - 6, 1, 1, "#f2c14e");
+      R(c, dx + 3, Y + h - 1, 10, 1, "#c9ad73");
+    }
+    if (b.sign) drawSign(c, b.sign, X + w / 2, Y + 13);
+  }
+  function drawObject(c, id, x, y) {
+    const X = x * TS, Y = y * TS;
+    R(c, X + 3, Y + 14, 10, 2, "rgba(0,0,0,0.15)");
+    if (id === "noticeBoard") {
+      R(c, X + 3, Y + 8, 2, 8, "#6b4423"); R(c, X + 11, Y + 8, 2, 8, "#6b4423");
+      R(c, X + 1, Y + 2, 14, 9, "#7a4e2c"); R(c, X + 2, Y + 3, 12, 7, "#a8763e");
+      R(c, X + 3, Y + 4, 4, 5, "#fffaf0"); R(c, X + 8, Y + 4, 5, 3, "#fde59a"); R(c, X + 8, Y + 8, 3, 2, "#cfe8ff");
+    } else if (id === "flourSacks") {
+      R(c, X + 1, Y + 7, 7, 8, "#e9e2d2"); R(c, X + 2, Y + 6, 5, 1, "#c9b99a"); R(c, X + 3, Y + 10, 3, 2, "#c98a4a");
+      R(c, X + 8, Y + 5, 7, 10, "#f3efe6"); R(c, X + 9, Y + 4, 5, 1, "#c9b99a"); R(c, X + 10, Y + 9, 3, 2, "#c98a4a");
+    } else if (id === "bookCart") {
+      R(c, X + 2, Y + 8, 12, 5, "#8a5a35"); R(c, X + 2, Y + 8, 12, 1, "#a8763e");
+      ["#d9503f", "#3d7fd1", "#f2c14e", "#4f9d5d", "#6c5ba7"].forEach((col, i) => R(c, X + 3 + i * 2, Y + 3 + (i % 2), 2, 5 - (i % 2), col));
+      R(c, X + 3, Y + 13, 3, 3, "#3b2a1f"); R(c, X + 10, Y + 13, 3, 3, "#3b2a1f");
+    } else if (id === "bridgeSign" || id === "tideChart") {
+      R(c, X + 7, Y + 8, 2, 8, "#6b4423");
+      const face = id === "tideChart" ? "#3d7fd1" : "#a8763e";
+      R(c, X + 1, Y + 2, 14, 8, "#5b3a20"); R(c, X + 2, Y + 3, 12, 6, face);
+      if (id === "tideChart") { for (let i = 0; i < 10; i += 2) R(c, X + 3 + i, Y + 5 + (i % 4 ? 1 : 0), 2, 1, "#fff"); R(c, X + 3, Y + 7, 10, 1, "#8fd0f0"); }
+      else { R(c, X + 3, Y + 4, 10, 1, "#5b3a20"); R(c, X + 3, Y + 6, 7, 1, "#5b3a20"); }
+    }
+  }
+  function drawSolvedExtras(c) {
+    if (solvedHas("bread")) { const X = 1 * TS, Y = 4 * TS; R(c, X + 3, Y + 9, 10, 5, "#a8763e"); R(c, X + 3, Y + 9, 10, 1, "#7a4e2c"); R(c, X + 4, Y + 6, 4, 3, "#e0a458"); R(c, X + 8, Y + 7, 4, 3, "#d4934a"); }
+    if (solvedHas("garden")) { const x0 = 8 * TS - 1, y0 = 9 * TS - 1, w = 3 * TS + 2, h = 2 * TS + 2; R(c, x0, y0, w, 1, "#d08a3c"); R(c, x0, y0 + h - 1, w, 1, "#d08a3c"); R(c, x0, y0, 1, h, "#d08a3c"); R(c, x0 + w - 1, y0, 1, h, "#d08a3c"); }
+    if (solvedHas("library")) { const X = 9 * TS, Y = 5 * TS; R(c, X + 7, Y + 7, 2, 9, "#6b4423"); R(c, X + 4, Y + 6, 8, 1, "#6b4423"); R(c, X + 5, Y + 7, 6, 5, "#f2c14e"); R(c, X + 4, Y + 11, 8, 1, "#d9a72e"); R(c, X + 7, Y + 12, 2, 1, "#b8861f"); }
+    if (solvedHas("bridge")) { const X = 18 * TS, Y = 3 * TS; R(c, X + 2, Y + 6, 12, 9, "#dbeef7"); R(c, X + 2, Y + 6, 12, 1, "#a9cfe0"); R(c, X + 4, Y + 4, 3, 3, "#8fb9d8"); R(c, X + 9, Y + 4, 3, 3, "#a7c7de"); }
+  }
+  function renderStatic() {
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) drawTile(bgc, x, y);
+    BUILDINGS.forEach((b) => drawBuilding(bgc, b));
+    Object.entries(OBJECTS).forEach(([id, [x, y]]) => drawObject(bgc, id, x, y));
+    drawSolvedExtras(bgc);
+  }
+
+  /* ================= Player + movement ================= */
+  const cv = $("#world"), ctx = cv.getContext("2d");
+  ctx.imageSmoothingEnabled = false;
+  const player = { x: 7, y: 7, fx: 7, fy: 7, ox: 7, oy: 7, t: 1, dir: "down", step: 0 };
+  const MOVE_MS = 135;
+  const DIRS = { up: [0, -1], down: [0, 1], left: [-1, 0], right: [1, 0] };
+  const KEYDIR = { arrowup: "up", w: "up", arrowdown: "down", s: "down", arrowleft: "left", a: "left", arrowright: "right", d: "right" };
+  const held = [];
+  let path = [], pending = null, marker = null;
+
+  function placePlayer(x, y) { player.x = player.ox = player.fx = x; player.y = player.oy = player.fy = y; player.t = 1; }
+  function tryStep(dir) {
+    player.dir = dir;
+    const [dx, dy] = DIRS[dir];
+    const nx = player.x + dx, ny = player.y + dy;
+    if (!walkable(nx, ny)) return false;
+    player.ox = player.x; player.oy = player.y; player.x = nx; player.y = ny; player.t = 0; player.step ^= 1;
+    return true;
+  }
+  function dirTo(ax, ay, bx, by) { if (bx > ax) return "right"; if (bx < ax) return "left"; if (by < ay) return "up"; return "down"; }
+  function bfs(sx, sy, goals) {
+    const start = key(sx, sy);
+    if (goals.has(start)) return [];
+    const prev = new Map([[start, null]]), q = [[sx, sy]];
+    while (q.length) {
+      const [x, y] = q.shift();
+      for (const [dx, dy] of Object.values(DIRS)) {
+        const nx = x + dx, ny = y + dy, k = key(nx, ny);
+        if (prev.has(k) || !walkable(nx, ny)) continue;
+        prev.set(k, key(x, y));
+        if (goals.has(k)) {
+          const out = []; let cur = k;
+          while (cur && cur !== start) { const [cx, cy] = cur.split(",").map(Number); out.unshift({ x: cx, y: cy }); cur = prev.get(cur); }
+          return out;
+        }
+        q.push([nx, ny]);
+      }
+    }
+    return null;
+  }
+  function adjacentTile(id) {
+    for (const [dx, dy] of Object.values(DIRS)) {
+      const k = key(player.x + dx, player.y + dy);
+      if (INTER.get(k) === id) return [player.x + dx, player.y + dy];
+    }
+    return null;
+  }
+  function goTo(tx, ty) {
+    if (tx < 0 || ty < 0 || tx >= W || ty >= H) return;
+    const id = INTER.get(key(tx, ty));
+    if (id) {
+      if (Math.abs(tx - player.x) + Math.abs(ty - player.y) === 1) { player.dir = dirTo(player.x, player.y, tx, ty); interact(id); return; }
+      const goals = new Set();
+      for (const [dx, dy] of Object.values(DIRS)) if (walkable(tx + dx, ty + dy)) goals.add(key(tx + dx, ty + dy));
+      const p = bfs(player.x, player.y, goals);
+      if (p) { path = p; pending = { id, tx, ty }; marker = { x: tx, y: ty, t: performance.now() }; }
+      return;
+    }
+    if (!walkable(tx, ty)) return;
+    const p = bfs(player.x, player.y, new Set([key(tx, ty)]));
+    if (p) { path = p; pending = null; marker = { x: tx, y: ty, t: performance.now() }; }
+  }
+  function interactNearby() {
+    const [dx, dy] = DIRS[player.dir];
+    let id = INTER.get(key(player.x + dx, player.y + dy));
+    if (!id) {
+      for (const [d, [ddx, ddy]] of Object.entries(DIRS)) {
+        const found = INTER.get(key(player.x + ddx, player.y + ddy));
+        if (found) { id = found; player.dir = d; break; }
+      }
+    }
+    if (id) interact(id);
+    else say0("Nothing to talk to here. Walk up to someone and press Space, or just tap them.");
+  }
+
+  function update(dt) {
+    if (player.t < 1) {
+      player.t = Math.min(1, player.t + dt / MOVE_MS);
+      player.fx = player.ox + (player.x - player.ox) * player.t;
+      player.fy = player.oy + (player.y - player.oy) * player.t;
+      if (player.t >= 1) { S.px = player.x; S.py = player.y; if (!path.length && !held.length) save(); }
+      return;
+    }
+    if (busy || modalOpen || !started) return;
+    if (held.length) { path = []; pending = null; tryStep(held[held.length - 1]); return; }
+    if (path.length) {
+      const n = path.shift();
+      if (!tryStep(dirTo(player.x, player.y, n.x, n.y))) { path = []; pending = null; }
+      return;
+    }
+    if (pending) {
+      const p = pending; pending = null;
+      if (Math.abs(p.tx - player.x) + Math.abs(p.ty - player.y) === 1) { player.dir = dirTo(player.x, player.y, p.tx, p.ty); interact(p.id); }
+    }
+  }
+
+  /* ================= Rendering loop ================= */
+  function bubbleIds() {
+    const out = new Set();
+    const c = CASES[S.caseIdx];
+    if (S.phase === "offer" && c) out.add(c.who);
+    if (S.phase === "dig" && c) Object.entries(c.clues).forEach(([id, card]) => { if (!S.found.includes(card)) out.add(id); });
+    if (S.phase === "finale") out.add("cobble");
+    return out;
+  }
+  function drawBlades(now) {
+    const b = BUILDINGS.find((x) => x.id === "mill");
+    const cx = b.x * TS + 24, cy = b.y * TS + 9;
+    const frame = reduceMotion ? 0 : Math.floor(now / 350) % 2;
+    const col = "#f4ead2", hub = "#5b3a20";
+    if (frame === 0) { R(ctx, cx - 10, cy - 1, 21, 3, col); R(ctx, cx - 1, cy - 9, 3, 19, col); }
+    else { for (let i = -7; i <= 7; i++) { R(ctx, cx + i, cy + i, 2, 2, col); R(ctx, cx + i, cy - i, 2, 2, col); } }
+    R(ctx, cx - 1, cy, 3, 3, hub);
+  }
+  function drawChar(img, x, y, bob) {
+    const X = Math.round(x * TS), Y = Math.round(y * TS);
+    R(ctx, X + 4, Y + 14, 8, 2, "rgba(0,0,0,0.18)");
+    ctx.drawImage(img, X, Y - 1 + bob);
+  }
+  function drawBubble(tx, ty, now) {
+    const bob = reduceMotion ? 0 : Math.round(Math.sin(now / 220) * 1.2);
+    const cx = tx * TS + 8, y = Math.max(0, ty * TS - 11 + bob);
+    R(ctx, cx - 5, y, 11, 10, "#14302b"); R(ctx, cx - 4, y + 1, 9, 8, "#fffdf2");
+    R(ctx, cx - 1, y + 10, 3, 1, "#14302b"); R(ctx, cx, y + 11, 1, 1, "#14302b");
+    R(ctx, cx, y + 2, 1, 4, "#d9503f"); R(ctx, cx, y + 7, 1, 1, "#d9503f");
+  }
+  function draw(now) {
+    ctx.drawImage(bg, 0, 0);
+    if (!reduceMotion) {
+      for (let y = 0; y < H; y++) for (const x of [13, 14]) {
+        if (tiles[y][x] !== WA) continue;
+        for (let i = 0; i < 2; i++) {
+          const h = hsh(x, y, i + 11); const ph = (now / 900 + (h % 100) / 100) % 1;
+          if (ph < 0.55) R(ctx, x * TS + 2 + (h % 9), y * TS + 2 + ((h >> 3) % 12), 3, 1, "#8fd0f0");
+        }
+      }
+    }
+    drawBlades(now);
+    if (marker && now - marker.t < 600) { const a = 1 - (now - marker.t) / 600; ctx.strokeStyle = `rgba(255,253,242,${a})`; ctx.lineWidth = 1; ctx.strokeRect(marker.x * TS + 1.5, marker.y * TS + 1.5, 13, 13); }
+    const chars = Object.entries(NPC).map(([id, n], i) => ({ y: n.y, draw: () => drawChar(SPRITES[n.sp], n.x, n.y, reduceMotion ? 0 : (Math.sin(now / 450 + i * 1.7) > 0.55 ? -1 : 0)) }));
+    const pBob = player.t < 1 && player.step ? -1 : 0;
+    chars.push({ y: player.fy, draw: () => drawChar(player.dir === "up" ? PLAYER_BACK : SPRITES.fox, player.fx, player.fy, pBob) });
+    chars.sort((a, b) => a.y - b.y).forEach((c) => c.draw());
+    if (started) bubbleIds().forEach((id) => { const p = BUBBLE_AT[id]; if (p) drawBubble(p[0], p[1], now); });
+  }
+  let last = performance.now();
+  function loop(now) {
+    const dt = Math.min(64, now - last); last = now;
+    update(dt); draw(now);
+    requestAnimationFrame(loop);
+  }
+
+  /* ================= Dialogue ================= */
+  let busy = false, started = false, modalOpen = false;
+  let dlgMode = "idle", dlgResolve = null, typing = null;
+  const dlg = $("#dialog");
+  const NPC_NAMES = new Set(Object.values(NPC).map((n) => n.name));
+  function whoClass(who) { if (who === "You") return "you"; if (who === "Journal" || who === "Tip") return "sys"; if (NPC_NAMES.has(who)) return ""; return "obj"; }
+  function typeText(el, text, done) {
+    if (reduceMotion) { el.textContent = text; done(); return; }
+    let i = 0; el.textContent = "";
+    const id = setInterval(() => { i += 2; el.textContent = text.slice(0, i); if (i >= text.length) { clearInterval(id); typing = null; done(); } }, 16);
+    typing = { finish() { clearInterval(id); el.textContent = text; typing = null; done(); } };
+  }
+  function showLine(who, text, choices) {
+    return new Promise((resolve) => {
+      dlg.innerHTML = `<span class="who ${whoClass(who)}"></span><p class="line"></p><div class="after"></div>`;
+      dlg.querySelector(".who").textContent = who;
+      const after = dlg.querySelector(".after");
+      dlgMode = "typing";
+      typeText(dlg.querySelector(".line"), text, () => {
+        if (choices) {
+          dlgMode = "choice";
+          after.innerHTML = `<div class="choices">${choices.map((c, i) => `<button type="button" class="choice" data-i="${i}"><span class="n">${i + 1}</span></button>`).join("")}</div>`;
+          after.querySelectorAll(".choice").forEach((b, i) => {
+            b.appendChild(document.createTextNode(choices[i]));
+            b.addEventListener("click", () => { dlgMode = "busy"; resolve(i); });
+          });
+          after.querySelector(".choice").focus({ preventScroll: true });
+        } else {
+          dlgMode = "next";
+          after.innerHTML = `<button type="button" class="next">Next</button>`;
+          after.querySelector(".next").addEventListener("click", advance);
+          dlgResolve = resolve;
+        }
+      });
+    });
+  }
+  function advance() {
+    if (typing) { typing.finish(); return; }
+    if (dlgMode === "next" && dlgResolve) { const r = dlgResolve; dlgResolve = null; dlgMode = "busy"; r(); }
+  }
+  const say = (who, text) => showLine(who, text, null);
+  const choose = (who, text, opts) => showLine(who, text, opts);
+  const isTouch = window.matchMedia("(pointer: coarse)").matches;
+  function hintText() {
+    const c = CASES[S.caseIdx];
+    if (S.phase === "offer" && c) return `${NPC[c.who].name} has something to ask. Look for the ! above their head.`;
+    if (S.phase === "dig" && c) return `Find the ! marks around Mossbrook. ${S.found.length} of 4 clues found. Not every clue is a real cause!`;
+    if (S.phase === "chain") return "All four clues found. Open your journal and build the why-chain.";
+    if (S.phase === "fix") return "Your chain is built. Open your journal and choose what to fix.";
+    if (S.phase === "finale") return "Every case is solved! Mayor Cobble is waiting by the Town Hall.";
+    return "Mossbrook is running smoothly. Wander, shop at the market stall, or decorate your room.";
+  }
+  function idleDialog() {
+    dlgMode = "idle";
+    const keys = isTouch ? "Tap where you want to walk. Tap someone to talk." : "Move with <kbd>←↑↓→</kbd> or <kbd>WASD</kbd>, or click a spot. Talk with <kbd>Space</kbd> or click someone.";
+    dlg.innerHTML = `<span class="who sys">Mossbrook</span><p class="line"></p><p class="keys">${keys}</p>`;
+    dlg.querySelector(".line").textContent = hintText();
+  }
+  function say0(text) { if (busy) return; dlg.querySelector(".line") && (dlg.querySelector(".line").textContent = text); }
+  async function run(fn) {
+    if (busy) return;
+    busy = true; path = []; pending = null; held.length = 0;
+    try { await fn(); } finally { busy = false; save(); renderJournal(); idleDialog(); }
+  }
+
+  /* ================= Modal ================= */
+  let modalResolve = null, lastFocus = null;
+  const back = $("#modalBack"), modal = $("#modal");
+  function openModal(html, bind) {
+    lastFocus = document.activeElement;
+    modal.innerHTML = html; back.hidden = false; modalOpen = true;
+    if (bind) bind(modal);
+    drawIcons(modal);
+    const f = modal.querySelector("button, a"); if (f) f.focus({ preventScroll: true });
+    modal.scrollTop = 0;
+    return new Promise((r) => (modalResolve = r));
+  }
+  function setModal(html, bind) { modal.innerHTML = html; if (bind) bind(modal); drawIcons(modal); const f = modal.querySelector("button:not(:disabled)"); if (f) f.focus({ preventScroll: true }); }
+  function closeModal(val) {
+    back.hidden = true; modalOpen = false; modal.innerHTML = "";
+    const r = modalResolve; modalResolve = null; if (r) r(val);
+    const target = lastFocus && lastFocus.isConnected ? lastFocus : document.querySelector("#journal button");
+    if (target && target.focus) target.focus({ preventScroll: true });
+  }
+  back.addEventListener("click", (e) => { if (e.target === back) closeModal(); });
+
+  /* ================= Game flow ================= */
+  const speaker = (id) => (NPC[id] ? NPC[id].name : NAMES[id] || "Mossbrook");
+  const problemOf = (c) => c.problems[c.problemAnswer].t;
+  const fixText = (c, f) => (f.k === "solution" ? f.label : c.cards[f.k].text);
+
+  async function intro() {
+    const m = "Mayor Cobble";
+    await say(m, "Welcome to Mossbrook, Fixer! I’m Mayor Cobble.");
+    await say(m, "Folks here are lovely, but they always ask for shiny new things before saying what’s actually wrong.");
+    await say(m, "Your job: find the real problem first. Then keep asking “why?” until you reach a cause we can actually fix.");
+    await say(m, isTouch ? "Tap where you want to walk. Tap someone to talk to them." : "Walk with the arrow keys or WASD, or click where you want to go. Press Space next to someone to talk, or just click them.");
+    await say(m, "Look for a ! above someone’s head. Bramble at the bakery looks flustered...");
+    S.introDone = true;
+  }
+
+  async function offerCase(c) {
+    const name = NPC[c.who].name;
+    for (const l of c.ask) await say(name, l);
+    for (;;) {
+      const i = await choose("You", "How do you reply?", c.replies.map((r) => r.label));
+      const r = c.replies[i];
+      await say(name, r.res);
+      if (r.ok) break;
+      S.mistakes++;
+      await say("Tip", "That agrees to a solution before anyone knows the problem: a solution in disguise. Ask about the problem instead.");
+    }
+    for (const l of c.symptom) await say(name, l);
+    for (;;) {
+      const i = await choose("Journal", "Which line goes in your journal as the problem?", c.problems.map((p) => p.t));
+      await say("Journal", c.problems[i].fb);
+      if (i === c.problemAnswer) break;
+      S.mistakes++;
+    }
+    S.phase = "dig"; S.found = []; save(); renderJournal();
+    await say(name, c.digIntro);
+  }
+
+  async function findClue(c, id) {
+    const k = c.clues[id], card = c.cards[k];
+    for (const l of card.say) await say(speaker(id), l);
+    S.found.push(k);
+    if (S.found.length === 4) {
+      S.phase = "chain"; save(); renderJournal();
+      await say("Journal", `Noted: “${card.text}” That’s all four clues. Open your journal and build the why-chain. Careful: one of them is a red herring.`);
+    } else {
+      save(); renderJournal();
+      await say("Journal", `Noted: “${card.text}” (${S.found.length} of 4 clues)`);
+    }
+  }
+
+  function chainHTML(c, picking) {
+    const rows = [`<li class="sym"><span class="k">Symptom</span>${problemOf(c)}</li>`]
+      .concat(S.chain.map((k, i) => `<li><span class="k">Why ${i + 1}</span>${c.cards[k].text}</li>`));
+    return `<ol class="chain">${rows.join("")}</ol>`;
+  }
+  function chainFlow() {
+    const c = CASES[S.caseIdx];
+    let fb = null;
+    const render = () => {
+      const done = S.chain.length >= 3;
+      const prev = S.chain.length ? c.cards[S.chain[S.chain.length - 1]].text : problemOf(c);
+      const opts = c.cardOrder.filter((k) => !S.chain.includes(k));
+      let html = `<h2>Build the why-chain</h2><p class="small">Pick the clue that answers “why?” for the last line. Start at the symptom and work down.</p>${chainHTML(c)}`;
+      if (done) {
+        html += `<div class="fb ok">Chain complete: from symptom to cause in three whys. The leftover clue was a red herring.</div><div class="row"><button class="btn" type="button" data-fix>Choose what to fix</button></div>`;
+      } else {
+        html += `<div class="ask-why">Why does this happen?<br><b></b></div><div class="cards">${opts.map((k) => `<button type="button" class="clue-card" data-k="${k}"></button>`).join("")}</div>`;
+        if (fb) html += `<div class="fb ${fb.ok ? "ok" : "no"}"></div>`;
+        html += `<div class="row"><button class="btn ghost" type="button" data-close>Close for now</button></div>`;
+      }
+      setModal(html, (m) => {
+        const b = m.querySelector(".ask-why b"); if (b) b.textContent = `“${prev}”`;
+        m.querySelectorAll(".clue-card").forEach((btn) => { btn.textContent = c.cards[btn.dataset.k].text; btn.addEventListener("click", () => pick(btn.dataset.k, prev)); });
+        const f = m.querySelector(".fb"); if (fb && f && !done) { f.textContent = fb.msg; if (!fb.ok) { f.classList.add("shake"); } }
+        const cl = m.querySelector("[data-close]"); if (cl) cl.addEventListener("click", () => closeModal());
+        const fx = m.querySelector("[data-fix]"); if (fx) fx.addEventListener("click", () => { S.phase = "fix"; save(); renderJournal(); fixFlow(); });
+      });
+    };
+    const pick = (k, prev) => {
+      const card = c.cards[k];
+      if (card.step === S.chain.length + 1) { S.chain.push(k); fb = { ok: true, msg: "Yes, that explains it." }; }
+      else {
+        S.mistakes++;
+        fb = { ok: false, msg: card.herring ? HERRING[card.herring] : `That’s part of the story, but it explains a different line. What directly causes “${prev}”?` };
+      }
+      save(); render();
+    };
+    const p = openModal("", null);
+    render();
+    return p;
+  }
+  function fixFlow() {
+    const c = CASES[S.caseIdx];
+    let fb = null, solved = false;
+    const render = () => {
+      let html = `<h2>Choose what to fix</h2><p class="small">Pick the one cause to act on. Use IDG’s two tests: is it <b>within your control</b>, and is it <b>closely connected</b> to the outcome you want?</p>${chainHTML(c)}<div class="cards">`;
+      html += c.fix.map((f, i) => `<button type="button" class="clue-card" data-i="${i}" ${S.wrongFix.includes(i) || solved ? "disabled" : ""}><span class="lbl">${f.k === "solution" ? "The original request" : "Why " + c.cards[f.k].step}</span></button>`).join("");
+      html += `</div>`;
+      if (fb) html += `<div class="fb ${fb.ok ? "ok" : "no"}"></div>`;
+      html += solved ? `<div class="row"><button class="btn green" type="button" data-done>Tell ${NPC[c.who].name}</button></div>` : `<div class="row"><button class="btn ghost" type="button" data-close>Close for now</button></div>`;
+      setModal(html, (m) => {
+        m.querySelectorAll(".clue-card").forEach((btn) => {
+          const f = c.fix[Number(btn.dataset.i)];
+          btn.appendChild(document.createTextNode(fixText(c, f)));
+          btn.addEventListener("click", () => {
+            const i = Number(btn.dataset.i);
+            if (f.ok) { solved = true; fb = { ok: true, msg: "Right. " + f.why }; }
+            else { S.mistakes++; S.wrongFix.push(i); fb = { ok: false, msg: f.why }; }
+            save(); render();
+          });
+        });
+        const box = m.querySelector(".fb"); if (box) { box.textContent = fb.msg; if (!fb.ok) box.classList.add("shake"); }
+        const cl = m.querySelector("[data-close]"); if (cl) cl.addEventListener("click", () => closeModal());
+        const d = m.querySelector("[data-done]"); if (d) d.addEventListener("click", () => closeModal("solved"));
+      });
+    };
+    if (!modalOpen) { const p = openModal("", null); render(); return p; }
+    render();
+    return null;
+  }
+
+  async function reward() {
+    const c = CASES[S.caseIdx];
+    const earned = Math.max(10, 30 - 5 * S.mistakes);
+    const perfect = S.mistakes === 0;
+    const fixed = c.fix.find((f) => f.ok);
+    S.acorns += earned; S.earned += earned; S.items.push(c.reward); S.solved.push(c.id); if (perfect) S.perfect++;
+    S.caseIdx++; S.phase = S.caseIdx < CASES.length ? "offer" : "finale";
+    S.found = []; S.chain = []; S.mistakes = 0; S.wrongFix = [];
+    save(); renderStatic(); renderJournal();
+    for (const l of c.thanks) await say(NPC[c.who].name, l);
+    await openModal(
+      `<h2>Case solved!</h2>${iconTag(c.reward, "icon-big")}
+       <p style="text-align:center">You got the <b>${ITEMS[c.reward]}</b> and <b>${earned} acorns</b>${perfect ? ". A perfect case, with no slips!" : "."}</p>
+       <div class="learned"><h3>What you practised</h3><ul>
+         <li>Spotted “${c.askShort}” as a solution in disguise <span class="small">(Lesson 01)</span></li>
+         <li>Wrote down the real problem: <i>${problemOf(c)}</i></li>
+         <li>Dug three whys and fixed the right level: <i>${fixText(c, fixed)}</i> <span class="small">(Lesson 02)</span></li>
+       </ul></div>
+       <div class="row"><button class="btn" type="button" data-close>Back to Mossbrook</button></div>`,
+      (m) => m.querySelector("[data-close]").addEventListener("click", () => closeModal())
+    );
+    const next = CASES[S.caseIdx];
+    if (next) await say("Journal", `New case! ${NPC[next.who].name} looks like they need you. Find the ! above their head.`);
+    else await say("Journal", "That was the last case! Mayor Cobble is waiting outside the Town Hall.");
+  }
+
+  function certificate() {
+    return openModal(
+      `<div class="cert">
+         <p class="small">Mossbrook Town Hall</p>
+         <p class="big">Village Fixer</p>
+         <p>For asking what was wrong before building anything, and asking “why?” until the fix was clear.</p>
+       </div>
+       <div class="stats">
+         <div><b>${S.solved.length}/4</b>cases solved</div>
+         <div><b>${S.earned}</b>acorns earned</div>
+         <div><b>${S.perfect}</b>perfect cases</div>
+       </div>
+       <div class="learned"><h3>The two habits you practised</h3><ul>
+         <li><b>Problems before solutions.</b> A request names something to build. A problem names who is affected, what goes wrong, and how you know.</li>
+         <li><b>Start with the whys.</b> Dig from symptom to cause, skip the red herrings, and fix the cause that is within your control and closely connected to the outcome.</li>
+       </ul></div>
+       <p class="small" style="margin-top:12px">Review: <a href="../lessons/0001-problems-before-solutions.html" target="_blank" rel="noopener">Lesson 01</a> · <a href="../lessons/0002-start-with-the-whys.html" target="_blank" rel="noopener">Lesson 02</a> · <a href="https://www.idg.gov.sg/product-thinking/" target="_blank" rel="noopener">IDG Product Thinking</a></p>
+       <div class="row"><button class="btn" type="button" data-close>Keep exploring</button><button class="btn ghost" type="button" data-room>See your room</button></div>`,
+      (m) => {
+        m.querySelector("[data-close]").addEventListener("click", () => closeModal());
+        m.querySelector("[data-room]").addEventListener("click", () => { closeModal(); openRoom(); });
+      }
+    );
+  }
+  async function finale() {
+    const m = "Mayor Cobble";
+    await say(m, "Four cases, Fixer! Mossbrook has never run so smoothly.");
+    await say(m, "Every time someone asked for something shiny, you asked what was wrong first.");
+    await say(m, "Then you kept asking “why?” until you found something we could actually fix. That’s product thinking.");
+    S.phase = "done"; save();
+    await certificate();
+  }
+
+  function idleTalk(id) {
+    const c = CASES[S.caseIdx];
+    if (c && id === c.who) {
+      if (S.phase === "dig") return say(speaker(id), `Found anything yet? Your journal shows ${S.found.length} of 4 clues.`);
+      if (S.phase === "chain" || S.phase === "fix") return say(speaker(id), "You’ve got all the clues? Open your journal and work it out. I’m all ears!");
+    }
+    let lines = IDLE[id] || ["..."];
+    for (const sid of S.solved) { const o = IDLE_SOLVED[sid]; if (o && o[id]) lines = o[id]; }
+    return say(speaker(id), lines[Math.floor(Math.random() * lines.length)]);
+  }
+
+  function interact(id) {
+    if (id === "houseDoor") { openRoom(); return; }
+    run(async () => {
+      const c = CASES[S.caseIdx];
+      if (S.phase === "offer" && c && id === c.who) return offerCase(c);
+      if (S.phase === "dig" && c && c.clues[id] && !S.found.includes(c.clues[id])) return findClue(c, id);
+      if (S.phase === "finale" && id === "cobble") return finale();
+      if (id === "market") { await say("Market stall", "An honesty stall: “Take what you like, leave acorns in the jar.”"); await openShop(); return; }
+      return idleTalk(id);
+    });
+  }
+
+  /* ================= Shop + room ================= */
+  function openShop() {
+    const render = () => `<h2>Market stall</h2><p class="small">You have <b>${S.acorns} acorns</b>. Earn more by solving cases.</p>
+      <ul class="shop">${SHOP.map((s) => {
+        const owned = S.items.includes(s.id);
+        return `<li>${iconTag(s.id)}<span class="nm">${ITEMS[s.id]}</span><span class="pr">${s.price} acorns</span><button class="btn" type="button" data-buy="${s.id}" ${owned || S.acorns < s.price ? "disabled" : ""}>${owned ? "Owned" : "Buy"}</button></li>`;
+      }).join("")}</ul><div class="row"><button class="btn ghost" type="button" data-close>Leave the stall</button></div>`;
+    const bind = (m) => {
+      m.querySelectorAll("[data-buy]").forEach((b) => b.addEventListener("click", () => {
+        const s = SHOP.find((x) => x.id === b.dataset.buy);
+        if (!s || S.items.includes(s.id) || S.acorns < s.price) return;
+        S.acorns -= s.price; S.items.push(s.id); save(); renderJournal();
+        setModal(render(), bind);
+      }));
+      m.querySelector("[data-close]").addEventListener("click", () => closeModal());
+    };
+    return openModal(render(), bind);
+  }
+
+  const ROOM_SLOTS = { loafLamp: [14, 40], fern: [150, 34], bookshelf: [62, 22], fishRug: [84, 74], stool: [118, 56], lantern: [100, 4], starRug: [34, 74], fountain: [146, 70] };
+  function drawRoom(cvRoom) {
+    const c = cvRoom.getContext("2d"); c.imageSmoothingEnabled = false;
+    R(c, 0, 0, 192, 56, "#f6dcb4");
+    for (let x = 0; x < 192; x += 12) R(c, x, 0, 6, 56, "#f1d2a4");
+    R(c, 0, 52, 192, 4, "#c98a4a");
+    R(c, 0, 56, 192, 56, "#c08a55");
+    for (let y = 60; y < 112; y += 8) R(c, 0, y, 192, 1, "#a8763e");
+    for (let y = 56; y < 112; y += 16) for (let x = (y / 16) % 2 ? 0 : 24; x < 192; x += 48) R(c, x, y, 1, 8, "#a8763e");
+    R(c, 70, 14, 30, 24, "#7a4e2c"); R(c, 72, 16, 26, 20, "#9fd3f0"); R(c, 84, 16, 2, 20, "#7a4e2c"); R(c, 72, 25, 26, 2, "#7a4e2c");
+    S.items.slice().sort((a, b) => (ROOM_SLOTS[a]?.[1] || 0) - (ROOM_SLOTS[b]?.[1] || 0)).forEach((id) => {
+      const pos = ROOM_SLOTS[id]; if (!pos) return;
+      const ic = mk(16, 16); ICON[id](ic.getContext("2d"));
+      c.drawImage(ic, pos[0], pos[1], 32, 32);
+    });
+  }
+  function openRoom() {
+    if (modalOpen) return;
+    const list = S.items.length ? S.items.map((id) => ITEMS[id]).join(", ") : "Nothing yet. Solve cases to earn furniture, or buy some at the market stall.";
+    openModal(`<h2>Your room</h2><canvas class="room" width="192" height="112" aria-label="Your room"></canvas>
+      <p><b>${S.items.length} of ${Object.keys(ITEMS).length} items:</b> ${list}</p>
+      <div class="row"><button class="btn" type="button" data-close>Back outside</button></div>`,
+      (m) => { drawRoom(m.querySelector(".room")); m.querySelector("[data-close]").addEventListener("click", () => closeModal()); });
+  }
+
+  function openHelp() {
+    if (modalOpen) return;
+    let armed = false;
+    openModal(`<h2>How to play</h2>
+      <p>Four villagers each ask for something shiny. For each case:</p>
+      <ol>
+        <li><b>Reply</b> by asking about the problem, not agreeing to the shiny thing. <span class="small">(Lesson 01)</span></li>
+        <li><b>Pick the problem</b> for your journal: who is affected, what goes wrong, how you know.</li>
+        <li><b>Find four clues</b> marked with ! around the village. One is a red herring.</li>
+        <li><b>Build the why-chain</b> from symptom to cause. <span class="small">(Lesson 02)</span></li>
+        <li><b>Choose what to fix</b>: within your control and closely connected to the outcome.</li>
+      </ol>
+      <p>Each case pays up to 30 acorns, minus 5 per slip (at least 10). Spend them at the market stall and decorate your room.</p>
+      <p class="small">${isTouch ? "Tap to walk, and tap someone to talk." : "Arrow keys or WASD to walk, Space or Enter to talk and continue, 1–3 to pick a reply. You can also click to walk and click someone to talk."}</p>
+      <div class="row"><button class="btn" type="button" data-close>Got it</button><button class="btn ghost" type="button" data-reset>Start over</button></div>`,
+      (m) => {
+        m.querySelector("[data-close]").addEventListener("click", () => closeModal());
+        const r = m.querySelector("[data-reset]");
+        r.addEventListener("click", () => {
+          if (!armed) { armed = true; r.textContent = "Yes, erase my progress"; return; }
+          wipe(); S = fresh(); placePlayer(S.px, S.py); renderStatic(); renderJournal(); closeModal();
+          run(intro);
+        });
+      });
+  }
+
+  /* ================= Journal ================= */
+  function renderJournal() {
+    $("#acorns").textContent = S.acorns;
+    $("#caseLabel").textContent = S.caseIdx < CASES.length ? `Case ${S.caseIdx + 1} of ${CASES.length}` : "All cases solved";
+    const j = $("#journal");
+    const c = CASES[S.caseIdx];
+    if (!c) {
+      j.innerHTML = `<h2>Fixer’s journal</h2>
+        <p class="hint">${S.phase === "finale" ? "All four cases are solved! Mayor Cobble is waiting outside the Town Hall." : "Mossbrook is running smoothly. Wander, shop, or decorate your room."}</p>
+        <div class="tests"><b>Solved:</b> ${S.solved.length} of 4 · <b>Perfect:</b> ${S.perfect} · <b>Acorns earned:</b> ${S.earned}</div>
+        ${S.phase === "done" ? `<button class="btn" type="button" id="certBtn">See your certificate</button>` : ""}`;
+      const cb = $("#certBtn"); if (cb) cb.addEventListener("click", () => { if (!modalOpen && !busy) certificate(); });
+      return;
+    }
+    const order = ["offer", "dig", "chain", "fix"];
+    const at = order.indexOf(S.phase);
+    const step = (i, label) => `<li class="${at > i ? "done" : at === i ? "now" : ""}">${label}</li>`;
+    let h = `<h2>Fixer’s journal</h2><p class="case-tag">Case ${S.caseIdx + 1} of ${CASES.length}</p><h3>${c.title}</h3>
+      <ul class="steps">${step(0, "Spot the solution in disguise")}${step(1, `Find the clues (${S.found.length}/4)`)}${step(2, "Build the why-chain")}${step(3, "Choose what to fix")}</ul>`;
+    if (S.phase === "offer") {
+      h += `<p class="hint">${NPC[c.who].name} has something to ask. Look for the <b>!</b> above their head.</p>`;
+    } else {
+      h += `<div class="card solution"><span class="tag">Asked for</span>${c.askShort}</div>
+        <div class="card problem"><span class="tag">Real problem</span>${problemOf(c)}</div>
+        <p class="clues-h"><span>Clues</span><span>${S.found.length}/4</span></p>
+        <ul class="clues">${S.found.map((k) => `<li class="clue">${c.cards[k].text}</li>`).join("")}${Array.from({ length: 4 - S.found.length }, () => `<li class="clue unknown">??? Find a !</li>`).join("")}</ul>`;
+      if (S.phase === "chain") h += `<button class="btn pulse" type="button" id="chainBtn">Build the why-chain</button>`;
+      if (S.phase === "fix") h += `<button class="btn pulse" type="button" id="fixBtn">Choose what to fix</button>`;
+      h += `<div class="tests"><b>Fix test:</b> within your control · closely connected to the outcome</div>`;
+    }
+    j.innerHTML = h;
+    const cb = $("#chainBtn"), fb = $("#fixBtn");
+    const go = (flow) => run(async () => { const r = await flow(); if (r === "solved") await reward(); });
+    if (cb) cb.addEventListener("click", () => go(chainFlow));
+    if (fb) fb.addEventListener("click", () => go(fixFlow));
+  }
+
+  /* ================= Input ================= */
+  window.addEventListener("keydown", (e) => {
+    if (!started) return;
+    const k = e.key.toLowerCase();
+    if (modalOpen) { if (k === "escape") closeModal(); return; }
+    if (e.target && (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA")) return;
+    if (k === " " || k === "enter" || k === "e") {
+      if (busy) { if (dlgMode === "next" || typing) { e.preventDefault(); advance(); } return; }
+      if (e.target && e.target.tagName === "BUTTON" && k !== "e") return;
+      e.preventDefault(); if (!e.repeat) interactNearby(); return;
+    }
+    if (busy && dlgMode === "choice" && ["1", "2", "3"].includes(k)) {
+      const b = dlg.querySelectorAll(".choice")[Number(k) - 1]; if (b) { e.preventDefault(); b.click(); } return;
+    }
+    const d = KEYDIR[k];
+    if (d) {
+      e.preventDefault();
+      if (!busy && document.activeElement && document.activeElement.tagName === "BUTTON") document.activeElement.blur();
+      if (!held.includes(d)) held.push(d);
+    }
+  });
+  window.addEventListener("keyup", (e) => { const d = KEYDIR[e.key.toLowerCase()]; if (d) { const i = held.indexOf(d); if (i >= 0) held.splice(i, 1); } });
+  window.addEventListener("blur", () => (held.length = 0));
+  window.addEventListener("pagehide", () => { if (started) save(); });
+  cv.addEventListener("pointerdown", (e) => {
+    if (!started || modalOpen) return;
+    if (busy) { if (dlgMode === "next" || typing) advance(); return; }
+    const r = cv.getBoundingClientRect();
+    goTo(Math.floor(((e.clientX - r.left) / r.width) * W), Math.floor(((e.clientY - r.top) / r.height) * H));
+  });
+  dlg.addEventListener("click", (e) => { if (e.target.closest("button")) return; if (busy && (dlgMode === "next" || typing)) advance(); });
+  $("#roomBtn").addEventListener("click", () => { if (!busy) openRoom(); });
+  $("#helpBtn").addEventListener("click", () => { if (!busy) openHelp(); });
+
+  /* ================= Boot ================= */
+  function start(fromSave) {
+    $("#titleScreen").hidden = true; started = true;
+    if (!fromSave) { S = fresh(); wipe(); }
+    placePlayer(S.px, S.py);
+    if (!walkable(player.x, player.y)) placePlayer(7, 7);
+    renderStatic(); renderJournal(); idleDialog();
+    if (!S.introDone) run(intro);
+  }
+  const saved = load();
+  if (saved && typeof saved === "object") S = Object.assign(fresh(), saved);
+  const tb = $("#titleButtons");
+  if (saved && saved.introDone) {
+    tb.innerHTML = `<button class="btn" type="button" data-continue>Continue</button><button class="btn ghost" type="button" data-new>New game</button>`;
+  } else {
+    tb.innerHTML = `<button class="btn" type="button" data-new>Start playing</button>`;
+  }
+  tb.querySelector("[data-new]").addEventListener("click", () => start(false));
+  const cont = tb.querySelector("[data-continue]"); if (cont) cont.addEventListener("click", () => start(true));
+  placePlayer(S.px, S.py);
+  renderStatic(); renderJournal();
+  dlg.innerHTML = `<span class="who sys">Mossbrook</span><p class="line">Press Start to begin. Four villagers need a Fixer.</p>`;
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
