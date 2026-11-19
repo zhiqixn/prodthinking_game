@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit booking' if booking else 'New booking' }}{% endblock %}
+{% block content %}
+<div class="card form-card">
+  <h1>{{ 'Edit booking' if booking else 'Book a room' }}</h1>
+  <p class="muted">Up to {{ max_hours }} hours per booking, up to {{ max_days }} days ahead.</p>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Room
+      <select name="room_id" required>
+        <option value="">Choose a room…</option>
+        {% for r in rooms %}
+        <option value="{{ r.id }}" {{ 'selected' if r.id == form.room_id }}>
+          {{ r.name }} (up to {{ r.capacity }}, {{ fmt_hour(r.open_hour) }}–{{ fmt_hour(r.close_hour) }})
+        </option>
+        {% endfor %}
+      </select>
+    </label>
+    <label>Date
+      <input type="date" name="day" value="{{ form.day }}" min="{{ today.isoformat() }}" required>
+    </label>
+    <div class="row-2">
+      <label>From
+        <select name="start_hour" required>
+          {% for h in range(0, 24) %}
+          <option value="{{ h }}" {{ 'selected' if h == form.start_hour }}>{{ fmt_hour(h) }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>To
+        <select name="end_hour" required>
+          {% for h in range(1, 25) %}
+          <option value="{{ h }}" {{ 'selected' if h == form.end_hour }}>{{ fmt_hour(h) }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+    <label>Purpose <span class="muted">(optional)</span>
+      <input name="purpose" value="{{ form.purpose }}" maxlength="200" placeholder="e.g. Group study, dance practice">
+    </label>
+    <div class="actions">
+      <a class="btn" href="{{ url_for('my_bookings') if booking else url_for('index', day=form.day) }}">Back</a>
+      <button class="btn btn-primary">{{ 'Save changes' if booking else 'Confirm booking' }}</button>
+    </div>
+  </form>
+  {% if booking %}
+  <form method="post" action="{{ url_for('delete_booking', booking_id=booking.id) }}"
+        onsubmit="return confirm('Cancel this booking?');" class="danger-zone">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <button class="btn btn-danger-outline">Cancel this booking</button>
+  </form>
+  {% endif %}
+</div>
+{% endblock %}

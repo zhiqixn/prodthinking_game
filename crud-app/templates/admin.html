@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Admin{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Admin</h1>
+    <p class="muted">Manage rooms and see every upcoming booking.</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('new_room') }}">+ Add room</a>
+</div>
+
+<h2>Rooms</h2>
+<div class="card table-card">
+  <table class="data">
+    <thead><tr><th>Name</th><th>Capacity</th><th>Hours</th><th>Status</th><th></th></tr></thead>
+    <tbody>
+      {% for r in rooms %}
+      <tr>
+        <td><strong>{{ r.name }}</strong><div class="muted small">{{ r.description }}</div></td>
+        <td>{{ r.capacity }}</td>
+        <td>{{ fmt_hour(r.open_hour) }} – {{ fmt_hour(r.close_hour) }}</td>
+        <td>{% if r.active %}<span class="pill pill-ok">Open</span>{% else %}<span class="pill">Hidden</span>{% endif %}</td>
+        <td class="right">
+          <a class="btn btn-sm" href="{{ url_for('edit_room', room_id=r.id) }}">Edit</a>
+          <form method="post" action="{{ url_for('delete_room', room_id=r.id) }}" class="inline"
+                onsubmit="return confirm('Delete {{ r.name }}? All its bookings will be removed too.');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <button class="btn btn-sm btn-danger-outline">Delete</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<h2>Upcoming bookings ({{ bookings|length }})</h2>
+{% if bookings %}
+<div class="card table-card">
+  <table class="data">
+    <thead><tr><th>Date</th><th>Time</th><th>Room</th><th>Resident</th><th>Purpose</th><th></th></tr></thead>
+    <tbody>
+      {% for b in bookings %}
+      <tr>
+        <td>{{ b.day }}</td>
+        <td>{{ fmt_hour(b.start_hour) }} – {{ fmt_hour(b.end_hour) }}</td>
+        <td>{{ b.room_name }}</td>
+        <td>{{ b.user_name }} <span class="muted">{{ b.user_unit }}</span></td>
+        <td class="muted">{{ b.purpose }}</td>
+        <td class="right">
+          <form method="post" action="{{ url_for('delete_booking', booking_id=b.id) }}" class="inline"
+                onsubmit="return confirm('Cancel this booking for {{ b.user_name }}?');">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+            <input type="hidden" name="back" value="{{ url_for('admin') }}">
+            <button class="btn btn-sm btn-danger-outline">Cancel</button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="card empty">No upcoming bookings.</div>
+{% endif %}
+
+<h2>Residents ({{ users|length }})</h2>
+<div class="card table-card">
+  <table class="data">
+    <thead><tr><th>Name</th><th>Unit</th><th>Email</th><th>Bookings</th><th>Role</th></tr></thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td>{{ u.name }}</td><td>{{ u.unit }}</td><td class="muted">{{ u.email }}</td>
+        <td>{{ u.n }}</td>
+        <td>{% if u.is_admin %}<span class="pill pill-ok">Admin</span>{% else %}Resident{% endif %}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endblock %}

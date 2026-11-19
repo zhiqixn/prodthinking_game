@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Create account{% endblock %}
+{% block main_class %}auth{% endblock %}
+{% block content %}
+<div class="card auth-card">
+  <h1>Create your account</h1>
+  <p class="muted">For residents of the building.</p>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Full name
+      <input name="name" value="{{ form.name }}" required autofocus>
+    </label>
+    <label>Unit number
+      <input name="unit" value="{{ form.unit }}" placeholder="e.g. #05-12" required>
+    </label>
+    <label>Email
+      <input type="email" name="email" value="{{ form.email }}" required autocomplete="username">
+    </label>
+    <div class="row-2">
+      <label>Password
+        <input type="password" name="password" minlength="6" required autocomplete="new-password">
+      </label>
+      <label>Confirm password
+        <input type="password" name="confirm" minlength="6" required autocomplete="new-password">
+      </label>
+    </div>
+    <button class="btn btn-primary btn-block">Create account</button>
+  </form>
+  <p class="muted center">Already registered? <a href="{{ url_for('login') }}">Log in</a></p>
+</div>
+{% endblock %}

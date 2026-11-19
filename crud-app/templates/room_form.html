@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit room' if editing else 'Add room' }}{% endblock %}
+{% block content %}
+<div class="card form-card">
+  <h1>{{ 'Edit ' ~ room.name if editing else 'Add a room' }}</h1>
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+    <label>Name
+      <input name="name" value="{{ room.name }}" required>
+    </label>
+    <label>Description
+      <textarea name="description" rows="2">{{ room.description }}</textarea>
+    </label>
+    <label>Capacity (people)
+      <input type="number" name="capacity" min="1" value="{{ room.capacity }}" required>
+    </label>
+    <div class="row-2">
+      <label>Opens at
+        <select name="open_hour">
+          {% for h in range(0, 24) %}
+          <option value="{{ h }}" {{ 'selected' if h == room.open_hour }}>{{ fmt_hour(h) }}</option>
+          {% endfor %}
+        </select>
+      </label>
+      <label>Closes at
+        <select name="close_hour">
+          {% for h in range(1, 25) %}
+          <option value="{{ h }}" {{ 'selected' if h == room.close_hour }}>{{ fmt_hour(h) }}</option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
+    <label class="check">
+      <input type="checkbox" name="active" value="1" {{ 'checked' if room.active }}>
+      Open for booking (untick to hide it from residents)
+    </label>
+    <div class="actions">
+      <a class="btn" href="{{ url_for('admin') }}">Back</a>
+      <button class="btn btn-primary">{{ 'Save room' if editing else 'Add room' }}</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

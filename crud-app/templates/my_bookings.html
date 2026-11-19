@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}My bookings{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>My bookings</h1>
+    <p class="muted">{{ upcoming|length }} of {{ max_active }} upcoming bookings used.</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('book') }}">+ New booking</a>
+</div>
+
+<h2>Upcoming</h2>
+{% if upcoming %}
+<div class="list">
+  {% for b in upcoming %}
+  <div class="card booking-row">
+    <div class="date-badge">
+      <span>{{ b.day[5:7]|int }}/{{ b.day[8:10]|int }}</span>
+    </div>
+    <div class="grow">
+      <strong>{{ b.room_name }}</strong>
+      <div class="muted">{{ b.day }} · {{ fmt_hour(b.start_hour) }} – {{ fmt_hour(b.end_hour) }}{% if b.purpose %} · {{ b.purpose }}{% endif %}</div>
+    </div>
+    <a class="btn btn-sm" href="{{ url_for('edit_booking', booking_id=b.id) }}">Edit</a>
+    <form method="post" action="{{ url_for('delete_booking', booking_id=b.id) }}"
+          onsubmit="return confirm('Cancel this booking?');">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+      <button class="btn btn-sm btn-danger-outline">Cancel</button>
+    </form>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card empty">No upcoming bookings. <a href="{{ url_for('index') }}">Find a free slot</a>.</div>
+{% endif %}
+
+{% if past %}
+<h2>Past</h2>
+<div class="list">
+  {% for b in past %}
+  <div class="card booking-row past-row">
+    <div class="grow">
+      <strong>{{ b.room_name }}</strong>
+      <div class="muted">{{ b.day }} · {{ fmt_hour(b.start_hour) }} – {{ fmt_hour(b.end_hour) }}{% if b.purpose %} · {{ b.purpose }}{% endif %}</div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
