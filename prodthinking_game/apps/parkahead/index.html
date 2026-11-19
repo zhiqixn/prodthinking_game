@@ -438,14 +438,15 @@ details.box ul.sk li { font-size: 0.88rem; display: grid; gap: 2px; }
   const fmtWalk = (m) => (m < 1000 ? `${Math.round(m / 10) * 10} m` : `${(m / 1000).toFixed(1)} km`);
   const fmtMins = (m) => Math.max(1, Math.round(m / RULE.walkMpm));
   const fmtAge = (ms) => { const m = Math.round((now() - ms) / 60000); return m <= 0 ? "Updated just now" : `Updated ${m} min ago`; };
-  const title = (s) => String(s || "").toLowerCase().replace(/\b([a-z])/g, (m) => m.toUpperCase());
+  const ACRONYMS = /\b(Hdb|Mrt|Lrt|Amk|Ntuc|Cpf|Ite|Safra|Ica|Lta|Ura|Sgh|Nuh|Ttsh|Kkh|Ktph|Ncid|Pcn|Mscp)\b/g;
+  const title = (s) => String(s || "").toLowerCase().replace(/\b([a-z])/g, (m) => m.toUpperCase()).replace(ACRONYMS, (m) => m.toUpperCase());
   const mapsUrl = (c) => `https://www.google.com/maps/dir/?api=1&destination=${c.ll[0].toFixed(6)},${c.ll[1].toFixed(6)}&travelmode=driving`;
   function tags(c) {
     const t = [title(c.type)];
     if (c.shortTerm && !/^WHOLE DAY$/i.test(c.shortTerm)) t.push(`Short-term ${c.shortTerm.toLowerCase()}`);
     if (c.free && !/^NO$/i.test(c.free)) t.push(`Free: ${c.free.toLowerCase().replace("sun & ph", "Sun & PH").replace(" fr ", " ")}`);
     if (/^YES$/i.test(c.night || "")) t.push("Night parking");
-    if (c.gantry > 0) t.push(`Height limit ${c.gantry} m`);
+    if (c.gantry > 0 && c.gantry < 5) t.push(`Height limit ${c.gantry} m`); // 0 and 9.99 mean no gantry
     if (/coupon/i.test(c.system || "")) t.push("Coupon parking");
     return t.filter(Boolean);
   }
@@ -593,8 +594,8 @@ details.box ul.sk li { font-size: 0.88rem; display: grid; gap: 2px; }
     const p = rec.picks[0];
     if (!p) { notify("warn", "No pick available", current.dest.label, "Every nearby carpark is nearly full, season-only or without fresh data."); return; }
     const line = `${p.live.free} free of ${p.live.total} · ${fmtWalk(p.walk)} walk`;
-    if (!prev) notify("", "Best pick", title(p.c.address), line);
-    else if (prev.id !== p.c.id) notify("warn", "Your pick changed", title(p.c.address), `${prev.address} dropped below ${RULE.minLots} free lots or went stale. ${line}.`);
+    // The first pick pops up on the map itself (drawMap); the banner is for news
+    if (prev && prev.id !== p.c.id) notify("warn", "Your pick changed", title(p.c.address), `${prev.address} dropped below ${RULE.minLots} free lots or went stale. ${line}.`);
   }
 
   /* ---------- Trip log (outcome metrics: hit rate, follow rate, time to park) ---------- */
