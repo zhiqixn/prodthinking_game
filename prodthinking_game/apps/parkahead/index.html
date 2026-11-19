@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>ParkAhead</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Pick an HDB carpark that will still have space, before you set off. Live lots from data.gov.sg on a map.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Barlow+Condensed:wght@600;700&display=swap">
+<style>
+/* Leaflet 1.9.4 stylesheet (BSD-2-Clause, © Volodymyr Agafonkin, © CloudMade), inlined; image rules removed. */
+.leaflet-pane, .leaflet-tile, .leaflet-marker-icon, .leaflet-marker-shadow, .leaflet-tile-container, .leaflet-pane > svg, .leaflet-pane > canvas, .leaflet-zoom-box, .leaflet-image-layer, .leaflet-layer{position: absolute;left: 0;top: 0;} .leaflet-container{overflow: hidden;} .leaflet-tile, .leaflet-marker-icon, .leaflet-marker-shadow{-webkit-user-select: none;-moz-user-select: none;user-select: none;-webkit-user-drag: none;} .leaflet-tile::selection{background: transparent;} .leaflet-safari .leaflet-tile{image-rendering: -webkit-optimize-contrast;} .leaflet-safari .leaflet-tile-container{width: 1600px;height: 1600px;-webkit-transform-origin: 0 0;} .leaflet-marker-icon, .leaflet-marker-shadow{display: block;} .leaflet-container .leaflet-overlay-pane svg{max-width: none !important;max-height: none !important;} .leaflet-container .leaflet-marker-pane img, .leaflet-container .leaflet-shadow-pane img, .leaflet-container .leaflet-tile-pane img, .leaflet-container img.leaflet-image-layer, .leaflet-container .leaflet-tile{max-width: none !important;max-height: none !important;width: auto;padding: 0;} .leaflet-container img.leaflet-tile{mix-blend-mode: plus-lighter;} .leaflet-container.leaflet-touch-zoom{-ms-touch-action: pan-x pan-y;touch-action: pan-x pan-y;} .leaflet-container.leaflet-touch-drag{-ms-touch-action: pinch-zoom;touch-action: none;touch-action: pinch-zoom;} .leaflet-container.leaflet-touch-drag.leaflet-touch-zoom{-ms-touch-action: none;touch-action: none;} .leaflet-container{-webkit-tap-highlight-color: transparent;} .leaflet-container a{-webkit-tap-highlight-color: rgba(51, 181, 229, 0.4);} .leaflet-tile{filter: inherit;visibility: hidden;} .leaflet-tile-loaded{visibility: inherit;} .leaflet-zoom-box{width: 0;height: 0;-moz-box-sizing: border-box;box-sizing: border-box;z-index: 800;} .leaflet-overlay-pane svg{-moz-user-select: none;} .leaflet-pane{z-index: 400;} .leaflet-tile-pane{z-index: 200;} .leaflet-overlay-pane{z-index: 400;} .leaflet-shadow-pane{z-index: 500;} .leaflet-marker-pane{z-index: 600;} .leaflet-tooltip-pane{z-index: 650;} .leaflet-popup-pane{z-index: 700;} .leaflet-map-pane canvas{z-index: 100;} .leaflet-map-pane svg{z-index: 200;} .leaflet-vml-shape{width: 1px;height: 1px;} .leaflet-control{position: relative;z-index: 800;pointer-events: visiblePainted;pointer-events: auto;} .leaflet-top, .leaflet-bottom{position: absolute;z-index: 1000;pointer-events: none;} .leaflet-top{top: 0;} .leaflet-right{right: 0;} .leaflet-bottom{bottom: 0;} .leaflet-left{left: 0;} .leaflet-control{float: left;clear: both;} .leaflet-right .leaflet-control{float: right;} .leaflet-top .leaflet-control{margin-top: 10px;} .leaflet-bottom .leaflet-control{margin-bottom: 10px;} .leaflet-left .leaflet-control{margin-left: 10px;} .leaflet-right .leaflet-control{margin-right: 10px;} .leaflet-fade-anim .leaflet-popup{opacity: 0;-webkit-transition: opacity 0.2s linear;-moz-transition: opacity 0.2s linear;transition: opacity 0.2s linear;} .leaflet-fade-anim .leaflet-map-pane .leaflet-popup{opacity: 1;} .leaflet-zoom-animated{-webkit-transform-origin: 0 0;-ms-transform-origin: 0 0;transform-origin: 0 0;} svg.leaflet-zoom-animated{will-change: transform;} .leaflet-zoom-anim .leaflet-zoom-animated{-webkit-transition: -webkit-transform 0.25s cubic-bezier(0,0,0.25,1);-moz-transition: -moz-transform 0.25s cubic-bezier(0,0,0.25,1);transition: transform 0.25s cubic-bezier(0,0,0.25,1);} .leaflet-zoom-anim .leaflet-tile, .leaflet-pan-anim .leaflet-tile{-webkit-transition: none;-moz-transition: none;transition: none;} .leaflet-zoom-anim .leaflet-zoom-hide{visibility: hidden;} .leaflet-interactive{cursor: pointer;} .leaflet-grab{cursor: -webkit-grab;cursor: -moz-grab;cursor: grab;} .leaflet-crosshair, .leaflet-crosshair .leaflet-interactive{cursor: crosshair;} .leaflet-popup-pane, .leaflet-control{cursor: auto;} .leaflet-dragging .leaflet-grab, .leaflet-dragging .leaflet-grab .leaflet-interactive, .leaflet-dragging .leaflet-marker-draggable{cursor: move;cursor: -webkit-grabbing;cursor: -moz-grabbing;cursor: grabbing;} .leaflet-marker-icon, .leaflet-marker-shadow, .leaflet-image-layer, .leaflet-pane > svg path, .leaflet-tile-container{pointer-events: none;} .leaflet-marker-icon.leaflet-interactive, .leaflet-image-layer.leaflet-interactive, .leaflet-pane > svg path.leaflet-interactive, svg.leaflet-image-layer.leaflet-interactive path{pointer-events: visiblePainted;pointer-events: auto;} .leaflet-container{background: #ddd;outline-offset: 1px;} .leaflet-container a{color: #0078A8;} .leaflet-zoom-box{border: 2px dotted #38f;background: rgba(255,255,255,0.5);} .leaflet-container{font-family: "Helvetica Neue", Arial, Helvetica, sans-serif;font-size: 12px;font-size: 0.75rem;line-height: 1.5;} .leaflet-bar{box-shadow: 0 1px 5px rgba(0,0,0,0.65);border-radius: 4px;} .leaflet-bar a{background-color: #fff;border-bottom: 1px solid #ccc;width: 26px;height: 26px;line-height: 26px;display: block;text-align: center;text-decoration: none;color: black;} .leaflet-bar a, .leaflet-control-layers-toggle{background-position: 50% 50%;background-repeat: no-repeat;display: block;} .leaflet-bar a:hover, .leaflet-bar a:focus{background-color: #f4f4f4;} .leaflet-bar a:first-child{border-top-left-radius: 4px;border-top-right-radius: 4px;} .leaflet-bar a:last-child{border-bottom-left-radius: 4px;border-bottom-right-radius: 4px;border-bottom: none;} .leaflet-bar a.leaflet-disabled{cursor: default;background-color: #f4f4f4;color: #bbb;} .leaflet-touch .leaflet-bar a{width: 30px;height: 30px;line-height: 30px;} .leaflet-touch .leaflet-bar a:first-child{border-top-left-radius: 2px;border-top-right-radius: 2px;} .leaflet-touch .leaflet-bar a:last-child{border-bottom-left-radius: 2px;border-bottom-right-radius: 2px;} .leaflet-control-zoom-in, .leaflet-control-zoom-out{font: bold 18px 'Lucida Console', Monaco, monospace;text-indent: 1px;} .leaflet-touch .leaflet-control-zoom-in, .leaflet-touch .leaflet-control-zoom-out{font-size: 22px;} .leaflet-control-layers{box-shadow: 0 1px 5px rgba(0,0,0,0.4);background: #fff;border-radius: 5px;} .leaflet-touch .leaflet-control-layers-toggle{width: 44px;height: 44px;} .leaflet-control-layers .leaflet-control-layers-list, .leaflet-control-layers-expanded .leaflet-control-layers-toggle{display: none;} .leaflet-control-layers-expanded .leaflet-control-layers-list{display: block;position: relative;} .leaflet-control-layers-expanded{padding: 6px 10px 6px 6px;color: #333;background: #fff;} .leaflet-control-layers-scrollbar{overflow-y: scroll;overflow-x: hidden;padding-right: 5px;} .leaflet-control-layers-selector{margin-top: 2px;position: relative;top: 1px;} .leaflet-control-layers label{display: block;font-size: 13px;font-size: 1.08333em;} .leaflet-control-layers-separator{height: 0;border-top: 1px solid #ddd;margin: 5px -10px 5px -6px;} .leaflet-container .leaflet-control-attribution{background: #fff;background: rgba(255, 255, 255, 0.8);margin: 0;} .leaflet-control-attribution, .leaflet-control-scale-line{padding: 0 5px;color: #333;line-height: 1.4;} .leaflet-control-attribution a{text-decoration: none;} .leaflet-control-attribution a:hover, .leaflet-control-attribution a:focus{text-decoration: underline;} .leaflet-attribution-flag{display: inline !important;vertical-align: baseline !important;width: 1em;height: 0.6669em;} .leaflet-left .leaflet-control-scale{margin-left: 5px;} .leaflet-bottom .leaflet-control-scale{margin-bottom: 5px;} .leaflet-control-scale-line{border: 2px solid #777;border-top: none;line-height: 1.1;padding: 2px 5px 1px;white-space: nowrap;-moz-box-sizing: border-box;box-sizing: border-box;background: rgba(255, 255, 255, 0.8);text-shadow: 1px 1px #fff;} .leaflet-control-scale-line:not(:first-child){border-top: 2px solid #777;border-bottom: none;margin-top: -2px;} .leaflet-control-scale-line:not(:first-child):not(:last-child){border-bottom: 2px solid #777;} .leaflet-touch .leaflet-control-attribution, .leaflet-touch .leaflet-control-layers, .leaflet-touch .leaflet-bar{box-shadow: none;} .leaflet-touch .leaflet-control-layers, .leaflet-touch .leaflet-bar{border: 2px solid rgba(0,0,0,0.2);background-clip: padding-box;} .leaflet-popup{position: absolute;text-align: center;margin-bottom: 20px;} .leaflet-popup-content-wrapper{padding: 1px;text-align: left;border-radius: 12px;} .leaflet-popup-content{margin: 13px 24px 13px 20px;line-height: 1.3;font-size: 13px;font-size: 1.08333em;min-height: 1px;} .leaflet-popup-content p{margin: 17px 0;margin: 1.3em 0;} .leaflet-popup-tip-container{width: 40px;height: 20px;position: absolute;left: 50%;margin-top: -1px;margin-left: -20px;overflow: hidden;pointer-events: none;} .leaflet-popup-tip{width: 17px;height: 17px;padding: 1px;margin: -10px auto 0;pointer-events: auto;-webkit-transform: rotate(45deg);-moz-transform: rotate(45deg);-ms-transform: rotate(45deg);transform: rotate(45deg);} .leaflet-popup-content-wrapper, .leaflet-popup-tip{background: white;color: #333;box-shadow: 0 3px 14px rgba(0,0,0,0.4);} .leaflet-container a.leaflet-popup-close-button{position: absolute;top: 0;right: 0;border: none;text-align: center;width: 24px;height: 24px;font: 16px/24px Tahoma, Verdana, sans-serif;color: #757575;text-decoration: none;background: transparent;} .leaflet-container a.leaflet-popup-close-button:hover, .leaflet-container a.leaflet-popup-close-button:focus{color: #585858;} .leaflet-popup-scrolled{overflow: auto;} .leaflet-oldie .leaflet-popup-content-wrapper{-ms-zoom: 1;} .leaflet-oldie .leaflet-popup-tip{width: 24px;margin: 0 auto;-ms-filter: "progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678)";filter: progid:DXImageTransform.Microsoft.Matrix(M11=0.70710678, M12=0.70710678, M21=-0.70710678, M22=0.70710678);} .leaflet-oldie .leaflet-control-zoom, .leaflet-oldie .leaflet-control-layers, .leaflet-oldie .leaflet-popup-content-wrapper, .leaflet-oldie .leaflet-popup-tip{border: 1px solid #999;} .leaflet-div-icon{background: #fff;border: 1px solid #666;} .leaflet-tooltip{position: absolute;padding: 6px;background-color: #fff;border: 1px solid #fff;border-radius: 3px;color: #222;white-space: nowrap;-webkit-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;pointer-events: none;box-shadow: 0 1px 3px rgba(0,0,0,0.4);} .leaflet-tooltip.leaflet-interactive{cursor: pointer;pointer-events: auto;} .leaflet-tooltip-top:before, .leaflet-tooltip-bottom:before, .leaflet-tooltip-left:before, .leaflet-tooltip-right:before{position: absolute;pointer-events: none;border: 6px solid transparent;background: transparent;content: "";} .leaflet-tooltip-bottom{margin-top: 6px;} .leaflet-tooltip-top{margin-top: -6px;} .leaflet-tooltip-bottom:before, .leaflet-tooltip-top:before{left: 50%;margin-left: -6px;} .leaflet-tooltip-top:before{bottom: 0;margin-bottom: -12px;border-top-color: #fff;} .leaflet-tooltip-bottom:before{top: 0;margin-top: -12px;margin-left: -6px;border-bottom-color: #fff;} .leaflet-tooltip-left{margin-left: -6px;} .leaflet-tooltip-right{margin-left: 6px;} .leaflet-tooltip-left:before, .leaflet-tooltip-right:before{top: 50%;margin-top: -6px;} .leaflet-tooltip-left:before{right: 0;margin-right: -12px;border-left-color: #fff;} .leaflet-tooltip-right:before{left: 0;margin-left: -12px;border-right-color: #fff;} @media print{.leaflet-control{-webkit-print-color-adjust: exact;print-color-adjust: exact;}}
+</style>
+<style>
+/* Layout: full-screen map. A floating search bar sits on top; results live in a panel
+   (left column on desktop, bottom sheet on phones). The pick pops up on the map itself. */
+:root {
+  --bg: #eef2f7;
+  --surface: #ffffff;
+  --ink: #122033;
+  --muted: #586579;
+  --line: #d7dde6;
+  --sign: #0b57b5;
+  --sign-ink: #ffffff;
+  --ok: #157347;
+  --ok-soft: #e0f2e8;
+  --low: #9a5800;
+  --low-soft: #fff0da;
+  --bad: #b42318;
+  --bad-soft: #fde6e3;
+  --dest: #d1342c;
+  --focus: #0b57b5;
+  --shadow: 0 8px 28px rgba(10, 25, 45, 0.22);
+  --display: "Barlow Condensed", "Arial Narrow", Arial, sans-serif;
+  --body: "Atkinson Hyperlegible", "Segoe UI", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0d141d; --surface: #152030; --ink: #e6edf5; --muted: #9aa8ba; --line: #2a394d;
+    --sign: #2f6fcc; --sign-ink: #ffffff; --ok: #52c48d; --ok-soft: #133022; --low: #f0a443; --low-soft: #3a2a10;
+    --bad: #f2817a; --bad-soft: #3d1a18; --dest: #ff6b61; --focus: #8ab8f5; --shadow: 0 8px 28px rgba(0, 0, 0, 0.5); color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0d141d; --surface: #152030; --ink: #e6edf5; --muted: #9aa8ba; --line: #2a394d;
+  --sign: #2f6fcc; --sign-ink: #ffffff; --ok: #52c48d; --ok-soft: #133022; --low: #f0a443; --low-soft: #3a2a10;
+  --bad: #f2817a; --bad-soft: #3d1a18; --dest: #ff6b61; --focus: #8ab8f5; --shadow: 0 8px 28px rgba(0, 0, 0, 0.5); color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 16px; line-height: 1.45; overflow: hidden; }
+a { color: var(--sign); }
+:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+
+#app { position: relative; height: 100%; }
+#map { position: absolute; inset: 0; background: var(--bg); z-index: 0; }
+.leaflet-container { font-family: var(--body); background: var(--bg); }
+.leaflet-control-attribution { font-size: 10px; }
+
+/* Floating search bar */
+.topbar {
+  position: absolute; z-index: 1000;
+  top: calc(env(safe-area-inset-top, 0px) + 12px);
+  left: max(12px, env(safe-area-inset-left, 0px)); right: max(12px, env(safe-area-inset-right, 0px));
+  max-width: 560px;
+  display: flex; align-items: center; gap: 10px;
+  background: var(--surface); border-radius: 14px; box-shadow: var(--shadow);
+  padding: 8px 8px 8px 10px;
+}
+.p-sign { flex: none; width: 38px; height: 38px; border-radius: 8px; background: var(--sign); color: var(--sign-ink); display: grid; place-items: center; font: 700 1.7rem/1 var(--display); }
+.brand { flex: none; font: 700 1.25rem/1 var(--display); letter-spacing: 0.01em; }
+.combo { position: relative; flex: 1; min-width: 0; }
+#dest { width: 100%; font: 1rem var(--body); color: var(--ink); background: var(--bg); border: 2px solid transparent; border-radius: 10px; padding: 10px 12px; }
+#dest:focus { border-color: var(--sign); outline: none; }
+#suggest {
+  position: absolute; z-index: 5; left: 0; right: 0; top: calc(100% + 10px);
+  list-style: none; margin: 0; padding: 4px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow);
+  max-height: 320px; overflow: auto;
+}
+#suggest li { padding: 9px 10px; border-radius: 8px; cursor: pointer; }
+#suggest li[aria-selected="true"], #suggest li:hover { background: var(--bg); }
+#suggest .s1 { display: block; font-weight: 700; }
+#suggest .s2 { display: block; font-size: 0.85rem; color: var(--muted); }
+@media (max-width: 520px) { .brand { display: none; } }
+
+/* Pop-up notification (toast) */
+#toast {
+  position: absolute; z-index: 1100;
+  top: calc(env(safe-area-inset-top, 0px) + 76px);
+  left: 50%; transform: translateX(-50%);
+  width: min(440px, calc(100% - 24px));
+  background: var(--surface); color: var(--ink);
+  border-left: 6px solid var(--sign); border-radius: 12px; box-shadow: var(--shadow);
+  padding: 12px 14px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; align-items: start;
+  animation: drop 260ms ease-out;
+}
+#toast.warn { border-left-color: var(--low); }
+#toast .t1 { font: 700 1.05rem/1.2 var(--display); letter-spacing: 0.02em; text-transform: uppercase; color: var(--sign); }
+#toast.warn .t1 { color: var(--low); }
+#toast .t2 { grid-column: 1; font-weight: 700; }
+#toast .t3 { grid-column: 1; font-size: 0.88rem; color: var(--muted); }
+#toast button { grid-column: 2; grid-row: 1 / span 3; background: none; border: 0; color: var(--muted); font-size: 1.3rem; line-height: 1; cursor: pointer; padding: 4px; }
+@keyframes drop { from { transform: translate(-50%, -12px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+
+/* Results panel: left column on desktop, bottom sheet on phones */
+.sheet {
+  position: absolute; z-index: 1000;
+  background: var(--surface); box-shadow: var(--shadow);
+  overflow: auto; overscroll-behavior: contain;
+  display: grid; gap: 14px; align-content: start;
+}
+@media (min-width: 900px) {
+  .sheet { left: 12px; top: calc(env(safe-area-inset-top, 0px) + 80px); bottom: 24px; width: 390px; border-radius: 16px; padding: 16px; }
+  .topbar { width: 390px; }
+  .grab { display: none; }
+}
+@media (max-width: 899px) {
+  .sheet {
+    left: 0; right: 0; bottom: 0; max-height: 46%;
+    border-radius: 18px 18px 0 0;
+    padding: 8px max(16px, env(safe-area-inset-right, 0px)) calc(16px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+    transition: max-height 200ms ease;
+  }
+  .sheet.tall { max-height: 82%; }
+  .grab { justify-self: center; width: 56px; height: 22px; border: 0; background: none; cursor: pointer; padding: 8px 0; }
+  .grab::before { content: ""; display: block; height: 5px; border-radius: 3px; background: var(--line); }
+  .leaflet-bottom { bottom: 46%; }
+}
+.banner { background: var(--low-soft); border-radius: 10px; padding: 9px 12px; font-size: 0.9rem; }
+.banner b { color: var(--low); }
+.status { margin: 0; font-size: 0.9rem; color: var(--muted); }
+.status.err { color: var(--bad); }
+.hint { margin: 0; font-size: 0.95rem; }
+.presets { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { font: 0.88rem var(--body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 999px; padding: 6px 11px; cursor: pointer; }
+.chip:hover { border-color: var(--sign); }
+
+.dest-line { margin: 0; color: var(--muted); font-size: 0.92rem; }
+.dest-line b { color: var(--ink); }
+.pick { border: 2px solid var(--sign); border-radius: 14px; padding: 14px; display: grid; gap: 10px; }
+.pick-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; }
+.badge { font: 700 0.9rem/1 var(--display); letter-spacing: 0.06em; text-transform: uppercase; background: var(--sign); color: var(--sign-ink); padding: 5px 9px; border-radius: 6px; }
+.age { font-size: 0.82rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.age.old { color: var(--low); font-weight: 700; }
+.pick h2 { margin: 0; font: 700 1.45rem/1.1 var(--display); letter-spacing: 0.01em; text-wrap: balance; }
+.cpid { font: 400 0.78rem var(--body); color: var(--muted); margin-left: 6px; }
+.facts { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.fact { background: var(--bg); border-radius: 10px; padding: 8px 10px; min-width: 0; }
+.fact b { display: block; font: 700 1.9rem/1 var(--display); font-variant-numeric: tabular-nums; }
+.fact span { font-size: 0.82rem; color: var(--muted); }
+.fact.lots b { color: var(--ok); }
+.meter { height: 7px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.meter i { display: block; height: 100%; background: var(--ok); border-radius: 999px; }
+.tags { list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 5px; }
+.tags li { font-size: 0.76rem; border: 1px solid var(--line); border-radius: 6px; padding: 2px 6px; color: var(--muted); }
+.nav { display: block; text-align: center; text-decoration: none; font: 700 1.15rem/1 var(--display); letter-spacing: 0.02em; background: var(--sign); color: var(--sign-ink) !important; padding: 13px; border-radius: 11px; }
+.nav:hover { filter: brightness(1.08); }
+.row2 { display: flex; gap: 8px; flex-wrap: wrap; }
+.sec-h { font: 700 1.05rem/1.1 var(--display); letter-spacing: 0.04em; text-transform: uppercase; color: var(--muted); margin: 2px 0 -6px; }
+.backups { display: grid; gap: 8px; }
+.backup { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 2px 10px; align-items: center; cursor: pointer; }
+.backup:hover { border-color: var(--sign); }
+.rank { grid-row: 1 / span 2; width: 26px; height: 26px; border-radius: 6px; background: var(--surface); border: 2px solid var(--sign); color: var(--sign); display: grid; place-items: center; font: 700 1rem/1 var(--display); }
+.backup .nm { font-weight: 700; min-width: 0; font-size: 0.95rem; }
+.backup .sub { grid-column: 2; font-size: 0.82rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.backup a { grid-column: 3; grid-row: 1 / span 2; font-weight: 700; text-decoration: none; border: 2px solid var(--sign); border-radius: 9px; padding: 6px 10px; white-space: nowrap; }
+.note { margin: 0; font-size: 0.85rem; color: var(--muted); }
+.widened { margin: 0; background: var(--low-soft); border-radius: 10px; padding: 8px 11px; font-size: 0.9rem; }
+.empty { background: var(--bad-soft); border-radius: 12px; padding: 12px; }
+.empty h2 { margin: 0 0 4px; font: 700 1.3rem/1.1 var(--display); }
+details.box { border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; }
+details.box > summary { cursor: pointer; font-weight: 700; }
+details.box ul.sk { list-style: none; margin: 8px 0 2px; padding: 0; display: grid; gap: 8px; }
+details.box ul.sk li { font-size: 0.88rem; display: grid; gap: 2px; }
+.why { font-size: 0.78rem; font-weight: 700; border-radius: 5px; padding: 1px 6px; justify-self: start; }
+.why.low { background: var(--low-soft); color: var(--low); }
+.why.bad { background: var(--bad-soft); color: var(--bad); }
+.why.unk { background: var(--bg); color: var(--muted); }
+.btn { font: 700 0.9rem var(--body); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 8px 11px; cursor: pointer; }
+.btn:hover { border-color: var(--sign); }
+.btn[aria-pressed="true"] { border-color: var(--sign); box-shadow: inset 0 0 0 1px var(--sign); color: var(--sign); }
+.ask { border: 2px solid var(--sign); border-radius: 12px; padding: 12px; margin-top: 8px; }
+.ask p { margin: 0 0 8px; }
+.btns { display: flex; flex-wrap: wrap; gap: 6px; }
+.mins { margin-top: 8px; display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 0.85rem; color: var(--muted); }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin: 8px 0; }
+.stat { background: var(--bg); border-radius: 10px; padding: 8px; }
+.stat b { display: block; font: 700 1.5rem/1 var(--display); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 0.75rem; color: var(--muted); }
+.trips { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 5px; font-size: 0.85rem; }
+.trips li { display: flex; justify-content: space-between; gap: 10px; border-top: 1px solid var(--line); padding-top: 5px; }
+.trips .r { color: var(--muted); white-space: nowrap; }
+.rule { margin: 8px 0 6px; padding-left: 1.2rem; font-size: 0.88rem; }
+.rule li { margin-bottom: 4px; }
+.foot { font-size: 0.75rem; color: var(--muted); }
+.foot p { margin: 0 0 5px; }
+
+/* Map markers (drawn in HTML, no image files) */
+.mk { background: none; border: 0; }
+.m-dest { width: 26px; height: 26px; background: var(--dest); border: 3px solid #fff; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); box-shadow: 0 2px 8px rgba(0,0,0,0.35); }
+.m-p { display: flex; align-items: center; gap: 4px; padding: 3px 7px 3px 3px; border-radius: 9px; background: var(--sign); color: var(--sign-ink); font: 700 0.95rem/1 var(--display); box-shadow: 0 2px 8px rgba(0,0,0,0.35); border: 2px solid #fff; white-space: nowrap; }
+.m-p b { width: 22px; height: 22px; border-radius: 6px; background: #fff; color: #0b57b5; display: grid; place-items: center; font-size: 1.05rem; }
+.m-p.backup { background: #fff; color: #0b57b5; border-color: #0b57b5; padding: 2px 6px 2px 2px; font-size: 0.85rem; }
+.m-p.backup b { background: #0b57b5; color: #fff; width: 18px; height: 18px; font-size: 0.9rem; }
+.m-skip { width: 14px; height: 14px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 1px 4px rgba(0,0,0,0.35); }
+.m-skip.low { background: #d08a1c; }
+.m-skip.bad { background: #c7362b; }
+.m-skip.unk { background: #8b95a5; }
+.leaflet-popup-content-wrapper { border-radius: 12px; background: var(--surface); color: var(--ink); box-shadow: var(--shadow); }
+.leaflet-popup-tip { background: var(--surface); }
+.leaflet-popup-content { margin: 12px 14px; font-size: 0.9rem; line-height: 1.4; min-width: 200px; }
+.pop .k { font: 700 0.8rem/1 var(--display); letter-spacing: 0.06em; text-transform: uppercase; color: var(--sign); }
+.pop .k.skip { color: var(--muted); }
+.pop h3 { margin: 4px 0 4px; font: 700 1.15rem/1.1 var(--display); }
+.pop p { margin: 0 0 8px; color: var(--muted); }
+.pop .nav { font-size: 1rem; padding: 9px; }
+
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="map" role="region" aria-label="Map of carparks near your destination"></div>
+
+  <header class="topbar">
+    <span class="p-sign" aria-hidden="true">P</span>
+    <span class="brand">ParkAhead</span>
+    <div class="combo">
+      <label for="dest" class="sr" hidden>Where are you going?</label>
+      <input id="dest" type="search" autocomplete="off" spellcheck="false" placeholder="Where are you going?" aria-label="Where are you going?"
+             role="combobox" aria-expanded="false" aria-controls="suggest" aria-autocomplete="list">
+      <ul id="suggest" role="listbox" aria-label="Destinations" hidden></ul>
+    </div>
+  </header>
+
+  <div id="toast" role="status" aria-live="polite" hidden></div>
+
+  <aside class="sheet" id="sheet" aria-label="Carpark recommendations">
+    <button class="grab" id="grab" type="button" aria-label="Expand or collapse the panel"></button>
+    <div id="demoBanner" class="banner" hidden></div>
+    <p id="status" class="status" aria-live="polite"></p>
+    <div id="intro">
+      <p class="hint">Search for where you’re going, or tap the map. We’ll pick the nearest HDB carpark that should still have space when you arrive.</p>
+      <div id="presets" class="presets" hidden></div>
+    </div>
+    <section id="results" hidden></section>
+
+    <details class="box" id="logBox">
+      <summary>Your trip log</summary>
+      <div id="logBody"></div>
+    </details>
+
+    <details class="box">
+      <summary>How the pick works</summary>
+      <ol class="rule">
+        <li>Look at HDB carparks around your destination.</li>
+        <li>Skip any that are <b>season parking only</b>, have <b>no live data</b>, data <b>older than 15 minutes</b>, or <b>fewer than 10 free car lots</b>. Lots fill up while you drive, so 10 is a safety buffer.</li>
+        <li>From the rest, pick the <b>shortest walk</b> within 500 m. If none qualify, widen to 1 km, then 1.5 km, and say so.</li>
+        <li>The next two become your backups.</li>
+      </ol>
+      <p class="note">Walking distance is estimated as 1.25 × the straight-line distance. Only HDB carparks have live data for now. Malls and URA carparks aren’t covered yet.</p>
+    </details>
+
+    <div class="foot">
+      <p>Contains information from the <a href="https://data.gov.sg/datasets/d_ca933a644e55d34fe21f28b8052fac63/view" target="_blank" rel="noopener">Carpark Availability</a> and <a href="https://data.gov.sg/datasets/d_23f946fa557947f93a8043bbef41dd09/view" target="_blank" rel="noopener">HDB Carpark Information</a> datasets, accessed on <span id="accessed"></span> from data.gov.sg and made available under the <a href="https://data.gov.sg/open-data-licence" target="_blank" rel="noopener">Singapore Open Data Licence version 1.0</a>.</p>
+      <p>Map and address search by <a href="https://www.onemap.gov.sg/" target="_blank" rel="noopener">OneMap</a>, Singapore Land Authority. Stage 1 prototype: always follow road signs and carpark rules.</p>
+    </div>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script id="snapshot" type="application/json">null</script>
+<script>
+(() => {
+  "use strict";
+  const $ = (s) => document.querySelector(s);
+  const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  /* ---------- Config: the Stage 1 rule ---------- */
+  const RULE = { minLots: 10, staleMin: 15, radii: [500, 1000, 1500], detour: 1.25, walkMpm: 80 };
+  const INFO_URL = "https://data.gov.sg/api/action/datastore_search?resource_id=d_23f946fa557947f93a8043bbef41dd09&limit=5000";
+  const AVAIL_URL = "https://api.data.gov.sg/v1/transport/carpark-availability";
+  const SEARCH_URL = (q) => `https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${encodeURIComponent(q)}&returnGeom=Y&getAddrDetails=Y&pageNum=1`;
+  const TILE_URL = "https://www.onemap.gov.sg/maps/tiles/Default/{z}/{x}/{y}.png";
+  const AVAIL_MAX_AGE_MS = 60 * 1000;
+
+  let SNAP = null;
+  try { SNAP = JSON.parse(document.getElementById("snapshot").textContent || "null"); } catch (e) { SNAP = null; }
+  const DEMO = !!SNAP;
+  const now = () => (DEMO ? SNAP.takenAt : Date.now());
+
+  /* ---------- Storage (per viewer, optional) ---------- */
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+    set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage blocked: keep going */ } },
+  };
+
+  /* ---------- SVY21 (EPSG:3414) ↔ WGS84 ---------- */
+  const SVY = (() => {
+    const a = 6378137, f = 1 / 298.257223563, oLat = 1.366666, oLon = 103.833333, oN = 38744.572, oE = 28001.642, k = 1;
+    const b = a * (1 - f), e2 = 2 * f - f * f, e4 = e2 * e2, e6 = e4 * e2;
+    const A0 = 1 - e2 / 4 - (3 * e4) / 64 - (5 * e6) / 256;
+    const A2 = (3 / 8) * (e2 + e4 / 4 + (15 * e6) / 128);
+    const A4 = (15 / 256) * (e4 + (3 * e6) / 4);
+    const A6 = (35 * e6) / 3072;
+    const rad = Math.PI / 180;
+    const calcM = (lat) => { const r = lat * rad; return a * (A0 * r - A2 * Math.sin(2 * r) + A4 * Math.sin(4 * r) - A6 * Math.sin(6 * r)); };
+    const Mo = calcM(oLat);
+    const n = (a - b) / (a + b), n2 = n * n, n3 = n2 * n, n4 = n2 * n2;
+    const G = a * (1 - n) * (1 - n2) * (1 + (9 * n2) / 4 + (225 * n4) / 64) * rad;
+    function toLatLon(E, N) {
+      const Mp = Mo + (N - oN) / k;
+      const sigma = (Mp / G) * rad;
+      const latP = sigma + ((3 * n) / 2 - (27 * n3) / 32) * Math.sin(2 * sigma) + ((21 * n2) / 16 - (55 * n4) / 32) * Math.sin(4 * sigma) + ((151 * n3) / 96) * Math.sin(6 * sigma) + ((1097 * n4) / 512) * Math.sin(8 * sigma);
+      const s = Math.sin(latP), s2 = s * s;
+      const rho = (a * (1 - e2)) / Math.pow(1 - e2 * s2, 1.5);
+      const v = a / Math.sqrt(1 - e2 * s2);
+      const psi = v / rho, psi2 = psi * psi, psi3 = psi2 * psi, psi4 = psi3 * psi;
+      const t = Math.tan(latP), t2 = t * t, t4 = t2 * t2, t6 = t4 * t2;
+      const Ep = E - oE, x = Ep / (k * v), x2 = x * x, x3 = x2 * x, x5 = x3 * x2, x7 = x5 * x2;
+      const lf = t / (k * rho);
+      const l1 = lf * ((Ep * x) / 2);
+      const l2 = lf * ((Ep * x3) / 24) * (-4 * psi2 + 9 * psi * (1 - t2) + 12 * t2);
+      const l3 = lf * ((Ep * x5) / 720) * (8 * psi4 * (11 - 24 * t2) - 12 * psi3 * (21 - 71 * t2) + 15 * psi2 * (15 - 98 * t2 + 15 * t4) + 180 * psi * (5 * t2 - 3 * t4) + 360 * t4);
+      const l4 = lf * ((Ep * x7) / 40320) * (1385 - 3633 * t2 + 4095 * t4 + 1575 * t6);
+      const lat = latP - l1 + l2 - l3 + l4;
+      const sec = 1 / Math.cos(lat);
+      const o1 = x * sec;
+      const o2 = ((x3 * sec) / 6) * (psi + 2 * t2);
+      const o3 = ((x5 * sec) / 120) * (-4 * psi3 * (1 - 6 * t2) + psi2 * (9 - 68 * t2) + 72 * psi * t2 + 24 * t4);
+      const o4 = ((x7 * sec) / 5040) * (61 + 662 * t2 + 1320 * t4 + 720 * t6);
+      return [lat / rad, (oLon * rad + o1 - o2 + o3 - o4) / rad];
+    }
+    function fromLatLon(lat, lon) {
+      const latR = lat * rad, s = Math.sin(latR), s2 = s * s;
+      const rho = (a * (1 - e2)) / Math.pow(1 - e2 * s2, 1.5);
+      const v = a / Math.sqrt(1 - e2 * s2);
+      const psi = v / rho, t = Math.tan(latR), w = (lon - oLon) * rad;
+      const M = calcM(lat);
+      const w2 = w * w, w4 = w2 * w2, w6 = w4 * w2, w8 = w6 * w2;
+      const c = Math.cos(latR), c2 = c * c, c3 = c2 * c, c4 = c3 * c, c5 = c4 * c, c6 = c5 * c, c7 = c6 * c;
+      const t2 = t * t, t4 = t2 * t2, t6 = t4 * t2;
+      const psi2 = psi * psi, psi3 = psi2 * psi, psi4 = psi3 * psi;
+      const N1 = (w2 / 2) * v * s * c;
+      const N2 = (w4 / 24) * v * s * c3 * (4 * psi2 + psi - t2);
+      const N3 = (w6 / 720) * v * s * c5 * (8 * psi4 * (11 - 24 * t2) - 28 * psi3 * (1 - 6 * t2) + psi2 * (1 - 32 * t2) - psi * 2 * t2 + t4);
+      const N4 = (w8 / 40320) * v * s * c7 * (1385 - 3111 * t2 + 543 * t4 - t6);
+      const N = oN + k * (M - Mo + N1 + N2 + N3 + N4);
+      const E1 = (w2 / 6) * c2 * (psi - t2);
+      const E2 = (w4 / 120) * c4 * (4 * psi3 * (1 - 6 * t2) + psi2 * (1 + 8 * t2) - psi * 2 * t2 + t4);
+      const E3 = (w6 / 5040) * c6 * (61 - 479 * t2 + 179 * t4 - t6);
+      const E = oE + k * v * w * c * (1 + E1 + E2 + E3);
+      return [E, N];
+    }
+    return { toLatLon, fromLatLon };
+  })();
+
+  /* ---------- Data ---------- */
+  let carparks = [];
+  const avail = new Map(); // id → { total, free, updated }
+  let availFetchedAt = 0;
+
+  // Info rows: [id, address, x, y, type, system, shortTerm, free, night, decks, gantry]
+  function setInfo(rows) {
+    carparks = rows.map((r) => ({ id: r[0], address: r[1], x: +r[2], y: +r[3], type: r[4], system: r[5], shortTerm: r[6], free: r[7], night: r[8], decks: +r[9], gantry: +r[10] }))
+      .filter((c) => Number.isFinite(c.x) && Number.isFinite(c.y) && c.x > 0);
+    carparks.forEach((c) => { c.ll = SVY.toLatLon(c.x, c.y); });
+  }
+  // update_datetime is Singapore local time without an offset
+  const sgt = (s) => Date.parse(/[zZ]|[+-]\d\d:?\d\d$/.test(s) ? s : s + "+08:00");
+  function setAvail(records) {
+    avail.clear();
+    for (const r of records) {
+      const car = (r.carpark_info || []).find((i) => i.lot_type === "C");
+      if (!car) continue;
+      const entry = { total: +car.total_lots, free: +car.lots_available, updated: sgt(r.update_datetime) };
+      if (!Number.isFinite(entry.free) || !Number.isFinite(entry.updated)) continue;
+      const prev = avail.get(r.carpark_number);
+      // The feed repeats some carparks: keep the freshest record (larger carpark on a tie)
+      if (!prev || entry.updated > prev.updated || (entry.updated === prev.updated && entry.total > prev.total)) avail.set(r.carpark_number, entry);
+    }
+  }
+  async function getJSON(url) {
+    const r = await fetch(url, { headers: { Accept: "application/json" } });
+    if (!r.ok) { const err = new Error("HTTP " + r.status); err.status = r.status; throw err; }
+    return r.json();
+  }
+  async function loadInfo() {
+    if (DEMO) { setInfo(SNAP.info); return; }
+    const cached = store.get("parkahead-info", null);
+    if (cached && Date.now() - cached.at < 24 * 3600 * 1000 && Array.isArray(cached.rows)) { setInfo(cached.rows); return; }
+    const j = await getJSON(INFO_URL);
+    const rows = j.result.records.map((r) => [r.car_park_no, r.address, r.x_coord, r.y_coord, r.car_park_type, r.type_of_parking_system, r.short_term_parking, r.free_parking, r.night_parking, r.car_park_decks, r.gantry_height]);
+    setInfo(rows);
+    store.set("parkahead-info", { at: Date.now(), rows });
+  }
+  async function refreshAvail(force) {
+    if (DEMO) { if (!avail.size) setAvail(SNAP.avail); return; }
+    if (!force && Date.now() - availFetchedAt < AVAIL_MAX_AGE_MS) return;
+    const j = await getJSON(AVAIL_URL);
+    setAvail(j.items[0].carpark_data);
+    availFetchedAt = Date.now();
+  }
+
+  /* ---------- The Stage 1 rule ---------- */
+  function judge(c, live) {
+    if (/^NO$/i.test(c.shortTerm || "")) return { ok: false, cls: "bad", why: "Season parking only" };
+    if (!live) return { ok: false, cls: "unk", why: "No live data: availability unknown" };
+    const ageMin = (now() - live.updated) / 60000;
+    if (ageMin > RULE.staleMin) return { ok: false, cls: "low", why: `Data ${Math.round(ageMin)} min old` };
+    if (live.free < RULE.minLots) return { ok: false, cls: live.free === 0 ? "bad" : "low", why: live.free === 0 ? "Full" : `Only ${live.free} lot${live.free === 1 ? "" : "s"} free` };
+    return { ok: true };
+  }
+  function recommend(dest) {
+    const near = [];
+    for (const c of carparks) {
+      const walk = Math.hypot(c.x - dest.x, c.y - dest.y) * RULE.detour;
+      if (walk > RULE.radii[RULE.radii.length - 1]) continue;
+      const live = avail.get(c.id) || null;
+      near.push({ c, live, walk, verdict: judge(c, live) });
+    }
+    near.sort((p, q) => p.walk - q.walk);
+    let radius = RULE.radii[0], picks = [];
+    for (const r of RULE.radii) {
+      radius = r;
+      picks = near.filter((n) => n.verdict.ok && n.walk <= r).slice(0, 3);
+      if (picks.length) break;
+    }
+    const skipped = near.filter((n) => !n.verdict.ok && n.walk <= radius).slice(0, 10);
+    return { picks, skipped, radius, nearCount: near.length };
+  }
+
+  /* ---------- Formatting ---------- */
+  const fmtWalk = (m) => (m < 1000 ? `${Math.round(m / 10) * 10} m` : `${(m / 1000).toFixed(1)} km`);
+  const fmtMins = (m) => Math.max(1, Math.round(m / RULE.walkMpm));
+  const fmtAge = (ms) => { const m = Math.round((now() - ms) / 60000); return m <= 0 ? "Updated just now" : `Updated ${m} min ago`; };
+  const title = (s) => String(s || "").toLowerCase().replace(/\b([a-z])/g, (m) => m.toUpperCase());
+  const mapsUrl = (c) => `https://www.google.com/maps/dir/?api=1&destination=${c.ll[0].toFixed(6)},${c.ll[1].toFixed(6)}&travelmode=driving`;
+  function tags(c) {
+    const t = [title(c.type)];
+    if (c.shortTerm && !/^WHOLE DAY$/i.test(c.shortTerm)) t.push(`Short-term ${c.shortTerm.toLowerCase()}`);
+    if (c.free && !/^NO$/i.test(c.free)) t.push(`Free: ${c.free.toLowerCase().replace("sun & ph", "Sun & PH").replace(" fr ", " ")}`);
+    if (/^YES$/i.test(c.night || "")) t.push("Night parking");
+    if (c.gantry > 0) t.push(`Height limit ${c.gantry} m`);
+    if (/coupon/i.test(c.system || "")) t.push("Coupon parking");
+    return t.filter(Boolean);
+  }
+
+  /* ---------- Map ---------- */
+  const map = L.map("map", { zoomControl: false, attributionControl: true, minZoom: 11, maxZoom: 19, maxBounds: [[1.13, 103.55], [1.50, 104.15]], maxBoundsViscosity: 0.8 })
+    .setView([1.3521, 103.8198], 12);
+  L.control.zoom({ position: "topright" }).addTo(map);
+  if (!DEMO) {
+    L.tileLayer(TILE_URL, {
+      minZoom: 11, maxZoom: 19, detectRetina: true,
+      attribution: '<a href="https://www.onemap.gov.sg/" target="_blank" rel="noopener">OneMap</a> © contributors | <a href="https://www.sla.gov.sg/" target="_blank" rel="noopener">Singapore Land Authority</a>',
+    }).addTo(map);
+  }
+  let dotLayer = null; // demo only: every carpark as a faint dot, so the city's shape shows without map tiles
+  const resultLayer = L.layerGroup().addTo(map);
+  const icon = (html, size, anchor) => L.divIcon({ className: "mk", html, iconSize: size, iconAnchor: anchor, popupAnchor: [0, -anchor[1]] });
+
+  function popHTML(kind, n) {
+    if (kind === "skip") return `<div class="pop"><span class="k skip">Skipped</span><h3>${esc(title(n.c.address))}</h3><p>${fmtWalk(n.walk)} walk · <span class="why ${n.verdict.cls}">${esc(n.verdict.why)}</span></p></div>`;
+    const label = kind === "pick" ? "Best pick" : `Backup ${kind}`;
+    return `<div class="pop"><span class="k">${label}</span><h3>${esc(title(n.c.address))}</h3>
+      <p><b style="color:var(--ok)">${n.live.free} free</b> of ${n.live.total} · ${fmtWalk(n.walk)} walk (~${fmtMins(n.walk)} min)<br>${fmtAge(n.live.updated)}</p>
+      <a class="nav" href="${mapsUrl(n.c)}" target="_blank" rel="noopener" data-go="${kind === "pick" ? 0 : kind}">Navigate in Google Maps</a></div>`;
+  }
+  let pickMarker = null;
+  function drawMap(dest, rec) {
+    resultLayer.clearLayers(); pickMarker = null;
+    const destLL = SVY.toLatLon(dest.x, dest.y);
+    L.circle(destLL, { radius: rec.radius / RULE.detour, color: "#0b57b5", weight: 1.5, dashArray: "6 6", fillOpacity: 0.05, interactive: false }).addTo(resultLayer);
+    rec.skipped.forEach((n) => L.marker(n.c.ll, { icon: icon(`<div class="m-skip ${n.verdict.cls}"></div>`, [14, 14], [7, 7]), title: n.c.address, keyboard: true })
+      .bindPopup(popHTML("skip", n)).addTo(resultLayer));
+    rec.picks.slice(1).forEach((n, i) => L.marker(n.c.ll, { icon: icon(`<div class="m-p backup"><b>${i + 2}</b>${n.live.free}</div>`, [52, 24], [12, 12]), title: n.c.address, zIndexOffset: 500 })
+      .bindPopup(popHTML(i + 1, n)).addTo(resultLayer));
+    if (rec.picks[0]) {
+      const p = rec.picks[0];
+      pickMarker = L.marker(p.c.ll, { icon: icon(`<div class="m-p"><b>P</b>${p.live.free} free</div>`, [86, 30], [15, 15]), title: p.c.address, zIndexOffset: 1000 })
+        .bindPopup(popHTML("pick", p), { autoPan: true, closeButton: true }).addTo(resultLayer);
+    }
+    L.marker(destLL, { icon: icon('<div class="m-dest"></div>', [26, 26], [3, 30]), title: dest.label, zIndexOffset: 900 })
+      .bindTooltip(esc(dest.label), { direction: "top", offset: [10, -30] }).addTo(resultLayer);
+    const pts = [destLL, ...rec.picks.map((n) => n.c.ll)];
+    const wide = window.matchMedia("(min-width: 900px)").matches;
+    map.fitBounds(L.latLngBounds(pts).pad(0.35), {
+      paddingTopLeft: wide ? [420, 90] : [20, 90],
+      paddingBottomRight: wide ? [60, 30] : [20, Math.round(window.innerHeight * 0.46) + 20],
+      maxZoom: 17,
+    });
+    if (pickMarker) setTimeout(() => pickMarker && pickMarker.openPopup(), 350);
+  }
+  map.on("popupopen", (e) => {
+    const a = e.popup.getElement().querySelector("[data-go]");
+    if (a) a.addEventListener("click", () => current && current.rec && startTrip(current.rec.picks[+a.dataset.go], +a.dataset.go));
+  });
+  let lastPopupClose = 0;
+  map.on("popupclose", () => { lastPopupClose = Date.now(); });
+  map.on("click", (e) => {
+    if (Date.now() - lastPopupClose < 400) return; // that click only closed a pop-up
+    const [x, y] = SVY.fromLatLon(e.latlng.lat, e.latlng.lng);
+    input.value = "Dropped pin";
+    goDest({ label: "Dropped pin", x, y });
+  });
+
+  /* ---------- Pop-up notification ---------- */
+  const toast = $("#toast");
+  let toastTimer = 0;
+  function notify(kind, head, main, sub) {
+    toast.className = kind === "warn" ? "warn" : "";
+    toast.innerHTML = `<span class="t1"></span><span class="t2"></span><span class="t3"></span><button type="button" aria-label="Dismiss">×</button>`;
+    toast.querySelector(".t1").textContent = head;
+    toast.querySelector(".t2").textContent = main;
+    toast.querySelector(".t3").textContent = sub;
+    toast.querySelector("button").addEventListener("click", () => { toast.hidden = true; });
+    toast.hidden = false;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => { toast.hidden = true; }, 8000);
+    // Browser notification only when the viewer turned on alerts and the tab is in the background
+    if (watch.on && document.hidden && "Notification" in window && Notification.permission === "granted") {
+      try { new Notification(`ParkAhead: ${head}`, { body: `${main}\n${sub}`, tag: "parkahead" }); } catch (e) { /* not available here */ }
+    }
+  }
+  const canNotify = !DEMO && "Notification" in window && window.isSecureContext;
+  const watch = { on: false };
+
+  /* ---------- Panel rendering ---------- */
+  const results = $("#results"), statusEl = $("#status"), sheet = $("#sheet");
+  let current = null; // { dest, rec }
+  function setStatus(msg, err) { statusEl.textContent = msg || ""; statusEl.classList.toggle("err", !!err); }
+
+  function renderResults() {
+    if (!current) { results.hidden = true; return; }
+    const { dest } = current;
+    const rec = (current.rec = recommend(dest));
+    $("#intro").hidden = true;
+    let h = `<p class="dest-line">Parking near <b>${esc(dest.label)}</b></p>`;
+    if (!rec.picks.length) {
+      h += `<div class="empty"><h2>No carpark passes the rule nearby</h2><p>${rec.nearCount ? `There are ${rec.nearCount} HDB carpark${rec.nearCount === 1 ? "" : "s"} within ${fmtWalk(RULE.radii[RULE.radii.length - 1])}, but each is season-only, nearly full, or has stale or no live data.` : `There are no HDB carparks within ${fmtWalk(RULE.radii[RULE.radii.length - 1])}. If this is a mall or the CBD, those carparks aren’t covered yet.`}</p></div>`;
+    } else {
+      const [p, ...backs] = rec.picks;
+      const pct = p.live.total > 0 ? Math.min(100, Math.round((p.live.free / p.live.total) * 100)) : 0;
+      const ageMin = (now() - p.live.updated) / 60000;
+      if (rec.radius > RULE.radii[0]) h += `<p class="widened">Nothing within 500 m passed the rule, so we looked up to ${fmtWalk(rec.radius)}.</p>`;
+      h += `<article class="pick" aria-label="Best pick">
+        <div class="pick-top"><span class="badge">Best pick</span><span class="age${ageMin > 10 ? " old" : ""}">${fmtAge(p.live.updated)}</span></div>
+        <h2>${esc(title(p.c.address))}<span class="cpid">${esc(p.c.id)}</span></h2>
+        <div class="facts">
+          <div class="fact lots"><b>${p.live.free}</b><span>lots free of ${p.live.total}</span></div>
+          <div class="fact"><b>${fmtWalk(p.walk)}</b><span>walk, about ${fmtMins(p.walk)} min</span></div>
+        </div>
+        <div class="meter" aria-hidden="true"><i style="width:${pct}%"></i></div>
+        <ul class="tags">${tags(p.c).map((t) => `<li>${esc(t)}</li>`).join("")}</ul>
+        <a class="nav" href="${mapsUrl(p.c)}" target="_blank" rel="noopener" data-go="0">Navigate in Google Maps</a>
+        ${canNotify ? `<div class="row2"><button type="button" class="btn" id="watchBtn" aria-pressed="${watch.on}">${watch.on ? "Alerts on: we’ll tell you if this fills up" : "Alert me if this pick fills up"}</button></div>` : ""}
+      </article>`;
+      if (backs.length) {
+        h += `<h3 class="sec-h">Backups</h3><div class="backups">${backs.map((b, i) => `
+          <div class="backup" data-show="${i + 1}"><span class="rank">${i + 2}</span><span class="nm">${esc(title(b.c.address))}</span>
+            <span class="sub">${b.live.free} free · ${fmtWalk(b.walk)} walk · ${fmtAge(b.live.updated).replace("Updated ", "")}</span>
+            <a href="${mapsUrl(b.c)}" target="_blank" rel="noopener" data-go="${i + 1}">Go</a></div>`).join("")}</div>`;
+      }
+      h += `<p class="note">Counts change while you drive, so carparks with fewer than ${RULE.minLots} free lots are skipped.${DEMO ? "" : " This page refreshes them every 2 minutes."}</p>`;
+    }
+    if (rec.skipped.length) {
+      h += `<details class="box"><summary>Nearby carparks we skipped (${rec.skipped.length})</summary><ul class="sk">${rec.skipped.map((s) => `
+        <li><span><b>${esc(title(s.c.address))}</b> · ${fmtWalk(s.walk)}</span><span class="why ${s.verdict.cls}">${esc(s.verdict.why)}</span></li>`).join("")}</ul></details>`;
+    }
+    results.innerHTML = h;
+    results.hidden = false;
+    results.querySelectorAll("[data-go]").forEach((a) => a.addEventListener("click", (e) => { e.stopPropagation(); startTrip(rec.picks[+a.dataset.go], +a.dataset.go); }));
+    results.querySelectorAll("[data-show]").forEach((row) => row.addEventListener("click", () => {
+      const n = rec.picks[+row.dataset.show];
+      resultLayer.eachLayer((l) => { if (l.getLatLng && n && l.getLatLng().equals(L.latLng(n.c.ll)) && l.openPopup) l.openPopup(); });
+    }));
+    const wb = $("#watchBtn");
+    if (wb) wb.addEventListener("click", async () => {
+      if (!watch.on && Notification.permission === "default") { try { await Notification.requestPermission(); } catch (e) {} }
+      watch.on = !watch.on;
+      renderResults();
+      notify("", watch.on ? "Alerts on" : "Alerts off", watch.on ? "We’ll pop up if your pick drops below 10 free lots or changes." : "No more alerts for this trip.", Notification.permission === "granted" ? "Works in the background while this tab stays open." : "Shown here while this page is open.");
+    });
+    return rec;
+  }
+
+  function announce(prev, rec) {
+    const p = rec.picks[0];
+    if (!p) { notify("warn", "No pick available", current.dest.label, "Every nearby carpark is nearly full, season-only or without fresh data."); return; }
+    const line = `${p.live.free} free of ${p.live.total} · ${fmtWalk(p.walk)} walk`;
+    if (!prev) notify("", "Best pick", title(p.c.address), line);
+    else if (prev.id !== p.c.id) notify("warn", "Your pick changed", title(p.c.address), `${prev.address} dropped below ${RULE.minLots} free lots or went stale. ${line}.`);
+  }
+
+  /* ---------- Trip log (outcome metrics: hit rate, follow rate, time to park) ---------- */
+  const LOG_KEY = "parkahead-trips";
+  let trips = store.get(LOG_KEY, []);
+  if (!Array.isArray(trips)) trips = [];
+  const saveTrips = () => store.set(LOG_KEY, trips.slice(-200));
+  const OUTCOMES = { parked: "Parked there", full: "It was full", elsewhere: "Parked somewhere else", skip: "Didn’t go" };
+  let clearArmed = false;
+
+  function startTrip(p, rank) {
+    if (!p || !current) return;
+    trips = trips.filter((t) => t.outcome); // one open trip at a time
+    trips.push({ at: Date.now(), dest: current.dest.label, carpark: title(p.c.address), cpId: p.c.id, freeAtPick: p.live.free, rank, outcome: null, mins: null, demo: DEMO });
+    saveTrips(); renderLog();
+    $("#logBox").open = true;
+  }
+  function renderLog() {
+    const body = $("#logBody");
+    const open = trips.find((t) => !t.outcome);
+    const done = trips.filter((t) => t.outcome && t.outcome !== "skip");
+    const went = done.filter((t) => t.outcome === "parked" || t.outcome === "full");
+    const hit = went.filter((t) => t.outcome === "parked").length;
+    const timed = done.filter((t) => Number.isFinite(t.mins));
+    const avgMins = timed.length ? timed.reduce((s, t) => s + t.mins, 0) / timed.length : null;
+    const pct = (x, y) => (y ? Math.round((x / y) * 100) + "%" : "–");
+    let h = "";
+    if (open) {
+      h += `<div class="ask"><p><b>How did it go at ${esc(open.carpark)}?</b><br><span class="note">Your answer measures whether the pick actually works.</span></p>
+        <div class="btns">${Object.entries(OUTCOMES).map(([k, v]) => `<button type="button" class="btn" data-outcome="${k}">${v}</button>`).join("")}</div>
+        <div class="mins" id="minsRow" hidden><span>Minutes from reaching the area to parked:</span>${[1, 3, 5, 8, 12, 20].map((m) => `<button type="button" class="btn" data-mins="${m}">${m === 20 ? "15+" : m === 1 ? "0–2" : "~" + m}</button>`).join("")}<button type="button" class="btn" data-mins="">Skip</button></div></div>`;
+    }
+    h += `<div class="stats">
+      <div class="stat"><b>${pct(hit, went.length)}</b><span>Hit rate: pick had space</span></div>
+      <div class="stat"><b>${pct(went.length, done.length)}</b><span>Follow rate: went to pick</span></div>
+      <div class="stat"><b>${avgMins == null ? "–" : avgMins.toFixed(1)}</b><span>Avg minutes to park</span></div>
+    </div>`;
+    if (!trips.some((t) => t.outcome)) h += `<p class="note">Tap <b>Navigate</b> on a pick, then come back after parking and record what happened. Your log stays in this browser only.</p>`;
+    else {
+      h += `<p class="note">${done.length} trip${done.length === 1 ? "" : "s"} recorded${done.length < 5 ? ". Record at least 5 before trusting these numbers" : ""}. Stored in this browser only.</p>
+        <ul class="trips">${trips.filter((t) => t.outcome).slice(-5).reverse().map((t) => `<li><span>${esc(t.carpark)}</span><span class="r">${OUTCOMES[t.outcome]}${Number.isFinite(t.mins) ? ` · ${t.mins === 20 ? "15+" : t.mins} min` : ""}</span></li>`).join("")}</ul>
+        <div class="btns" style="margin-top:8px"><button type="button" class="btn" id="clearLog">${clearArmed ? "Yes, clear my log" : "Clear log"}</button></div>`;
+    }
+    body.innerHTML = h;
+    body.querySelectorAll("[data-outcome]").forEach((b) => b.addEventListener("click", () => {
+      const t = trips.find((x) => !x.outcome); if (!t) return;
+      t.pending = b.dataset.outcome;
+      body.querySelectorAll("[data-outcome]").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+      if (t.pending === "skip") { t.outcome = "skip"; delete t.pending; saveTrips(); renderLog(); return; }
+      $("#minsRow").hidden = false;
+      body.querySelector("[data-mins]").focus();
+    }));
+    body.querySelectorAll("[data-mins]").forEach((b) => b.addEventListener("click", () => {
+      const t = trips.find((x) => !x.outcome); if (!t || !t.pending) return;
+      t.outcome = t.pending; delete t.pending;
+      t.mins = b.dataset.mins === "" ? null : +b.dataset.mins;
+      saveTrips(); renderLog();
+    }));
+    const cl = $("#clearLog");
+    if (cl) cl.addEventListener("click", () => {
+      if (!clearArmed) { clearArmed = true; renderLog(); return; }
+      clearArmed = false; trips = []; saveTrips(); renderLog();
+    });
+  }
+
+  /* ---------- Destination search ---------- */
+  const input = $("#dest"), list = $("#suggest");
+  let options = [], active = -1, searchSeq = 0, debounce = 0;
+
+  function localSearch(q) {
+    const words = q.toUpperCase().split(/\s+/).filter(Boolean);
+    if (!words.length) return [];
+    return carparks.filter((c) => words.every((w) => c.address.includes(w))).slice(0, 8)
+      .map((c) => ({ label: title(c.address), sub: `Near HDB carpark ${c.id}`, x: c.x, y: c.y }));
+  }
+  async function search(q) {
+    if (DEMO) return localSearch(q);
+    try {
+      const j = await getJSON(SEARCH_URL(q));
+      const res = (j.results || []).filter((r) => r.X && r.Y).slice(0, 8).map((r) => ({
+        label: title(r.BUILDING && r.BUILDING !== "NIL" ? r.BUILDING : r.SEARCHVAL),
+        sub: title(r.ADDRESS), x: +r.X, y: +r.Y,
+      }));
+      return res.length ? res : localSearch(q);
+    } catch (e) {
+      return localSearch(q);
+    }
+  }
+  function showOptions(opts) {
+    options = opts; active = -1;
+    if (!opts.length) { list.hidden = true; input.setAttribute("aria-expanded", "false"); input.removeAttribute("aria-activedescendant"); return; }
+    list.innerHTML = opts.map((o, i) => `<li role="option" id="opt-${i}" aria-selected="false"><span class="s1">${esc(o.label)}</span><span class="s2">${esc(o.sub)}</span></li>`).join("");
+    list.querySelectorAll("li").forEach((li, i) => li.addEventListener("mousedown", (e) => { e.preventDefault(); choose(i); }));
+    list.hidden = false; input.setAttribute("aria-expanded", "true");
+  }
+  function highlight(i) {
+    active = i;
+    list.querySelectorAll("li").forEach((li, j) => li.setAttribute("aria-selected", String(j === i)));
+    if (i >= 0) { input.setAttribute("aria-activedescendant", "opt-" + i); list.children[i].scrollIntoView({ block: "nearest" }); }
+  }
+  function choose(i) {
+    const o = options[i]; if (!o) return;
+    showOptions([]);
+    input.value = o.label;
+    input.blur();
+    goDest({ label: o.label, x: o.x, y: o.y });
+  }
+  let goSeq = 0;
+  async function goDest(dest) {
+    const seq = ++goSeq;
+    const prevPick = null;
+    current = { dest, rec: null };
+    setStatus(DEMO ? "" : "Checking live lots…");
+    try {
+      await refreshAvail(false);
+      setStatus(DEMO ? "" : `Live lots for ${avail.size.toLocaleString()} HDB carparks.`);
+    } catch (e) {
+      setStatus(e.status === 429 ? "Too many requests to data.gov.sg. Wait a few seconds and try again." : "Couldn’t reach data.gov.sg for live lots. Check your connection and try again.", true);
+      if (!avail.size) { results.hidden = true; return; }
+    }
+    if (seq !== goSeq) return;
+    watch.on = false;
+    const rec = renderResults();
+    drawMap(dest, rec);
+    announce(prevPick, rec);
+    store.set("parkahead-last", dest);
+  }
+  input.addEventListener("input", () => {
+    clearTimeout(debounce);
+    const q = input.value.trim();
+    if (q.length < 3) { showOptions([]); return; }
+    debounce = setTimeout(async () => {
+      const seq = ++searchSeq;
+      const opts = await search(q);
+      if (seq === searchSeq && input.value.trim() === q) showOptions(opts);
+    }, 250);
+  });
+  input.addEventListener("keydown", (e) => {
+    if (list.hidden) return;
+    if (e.key === "ArrowDown") { e.preventDefault(); highlight(Math.min(options.length - 1, active + 1)); }
+    else if (e.key === "ArrowUp") { e.preventDefault(); highlight(Math.max(0, active - 1)); }
+    else if (e.key === "Enter") { e.preventDefault(); choose(active >= 0 ? active : 0); }
+    else if (e.key === "Escape") { showOptions([]); }
+  });
+  input.addEventListener("blur", () => setTimeout(() => showOptions([]), 150));
+  $("#grab").addEventListener("click", () => sheet.classList.toggle("tall"));
+
+  // Keep live results fresh; pop up if the pick changes
+  setInterval(async () => {
+    if (DEMO || !current || !current.rec || document.hidden && !watch.on) return;
+    const prev = current.rec.picks[0] ? { id: current.rec.picks[0].c.id, address: title(current.rec.picks[0].c.address) } : null;
+    try {
+      await refreshAvail(true);
+      const keepWatch = watch.on;
+      const rec = renderResults();
+      watch.on = keepWatch;
+      const now0 = rec.picks[0];
+      if (prev && (!now0 || now0.c.id !== prev.id)) { drawMap(current.dest, rec); announce(prev, rec); }
+      else if (now0) { // same pick: refresh the marker counts quietly
+        if (pickMarker) pickMarker.setPopupContent(popHTML("pick", now0));
+      }
+    } catch (e) { /* keep the last good data */ }
+  }, 2 * 60 * 1000);
+
+  /* ---------- Boot ---------- */
+  function drawDots() {
+    if (!DEMO || dotLayer) return;
+    const r = L.canvas({ padding: 0.5 });
+    dotLayer = L.layerGroup(carparks.map((c) => L.circleMarker(c.ll, { renderer: r, radius: 2, stroke: false, fillColor: "#7d8ba0", fillOpacity: 0.55, interactive: false }))).addTo(map);
+  }
+  async function boot() {
+    $("#accessed").textContent = new Date(DEMO ? SNAP.takenAt : Date.now()).toLocaleDateString("en-SG", { day: "numeric", month: "long", year: "numeric" });
+    renderLog();
+    if (DEMO) {
+      const when = new Date(SNAP.takenAt).toLocaleString("en-SG", { timeZone: "Asia/Singapore", hour: "numeric", minute: "2-digit", day: "numeric", month: "short" });
+      const b = $("#demoBanner");
+      b.innerHTML = `<b>Demo on saved data.</b> Lot counts were captured at ${esc(when)} SGT and won’t change, and map tiles can’t load here, so grey dots stand in for the city’s HDB carparks. ${SNAP.liveUrl ? `<a href="${esc(SNAP.liveUrl)}" target="_blank" rel="noopener">Open the live version</a> for real-time lots on a full map.` : ""}`;
+      b.hidden = false;
+      input.placeholder = "Search an HDB block or street";
+      const pr = $("#presets");
+      pr.innerHTML = SNAP.presets.map((p, i) => `<button type="button" class="chip" data-p="${i}">${esc(p.label)}</button>`).join("");
+      pr.querySelectorAll("[data-p]").forEach((btn) => btn.addEventListener("click", () => { const p = SNAP.presets[+btn.dataset.p]; input.value = p.label; goDest(p); }));
+      pr.hidden = false;
+    }
+    setStatus(DEMO ? "" : "Loading HDB carparks…");
+    try {
+      await loadInfo();
+      drawDots();
+      await refreshAvail(false);
+      setStatus(DEMO ? "" : `Live lots for ${avail.size.toLocaleString()} HDB carparks.`);
+    } catch (e) {
+      setStatus("Couldn’t load carpark data from data.gov.sg. Check your connection and reload.", true);
+      return;
+    }
+    const last = store.get("parkahead-last", null);
+    if (DEMO && SNAP.presets.length) { input.value = SNAP.presets[0].label; goDest(SNAP.presets[0]); }
+    else if (last && Number.isFinite(last.x)) { input.value = last.label; goDest(last); }
+  }
+  boot();
+})();
+</script>
+</body>
+</html>
